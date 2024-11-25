@@ -1,29 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Données de test</title>
-</head>
-<body>
-    <h1>Données de test</h1>
-    <table border ="1">
-        <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Email</th>
-        </tr>
-        <tr>
-            <td>1</td>
-            <td>John Doe</td>
-            <td>john.doe@example.com</td>
-        </tr>
-        <tr>
-            <td>2</td>
-            <td>Jane Smith</td>
-            <td>jane.smith@example.com</td>
-        </tr>
-    </table>
-</body>
-</html>
+{% extends "base.html" %}
 
+{% block title %}Home | Apple Tracker{% endblock %}
+
+{% block content %}
+<section style="text-align: center; margin: 2rem;">
+    <h2>Track Your Favorite Apple Devices</h2>
+    <p>
+        Welcome to the Apple Tracker! Keep up with the latest updates on your favorite devices.
+        Track features, prices, and availability—all in one place.
+    </p>
+    <button style="padding: 0.5rem 1rem; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+        Get Started
+    </button>
+</section>
+{% endblock %}
