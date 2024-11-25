@@ -1,3 +1,3 @@
 class Config:
-    SECRET_KEY = 'votre-cle-secrete'
+    SECRET_KEY = 'none'
     DEBUG = True
