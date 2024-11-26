@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h2>Définir une alerte de prix</h2>
+        <form action="{{ url_for('main.set_alert') }}" method="POST">
+            <div class="form-group">
+                <label for="email">Email :</label>
+                <input type="email" class="form-control" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="price">Prix de seuil :</label>
+                <input type="number" class="form-control" id="price" name="price" required>
+            </div>
+            <button type="submit" class="btn btn-primary mt-3">Définir l'alerte</button>
+        </form>
+    </div>
+{% endblock %}

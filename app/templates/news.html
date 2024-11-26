@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <h2>Actualités d'Apple</h2>
+        <ul>
+            {% for article in news %}
+                <li>
+                    <a href="{{ article['link'] }}" target="_blank">{{ article['title'] }}</a>
+                    <p><small>{{ article['provider'] }}</small></p>
+                    <p>{{ article['published'] }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+{% endblock %}
