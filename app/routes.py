@@ -67,7 +67,7 @@ def home():
     return render_template('index.html')
 
 #route vers index2.html
-@main.route('/index')
+@main.route('/index2')
 def index2():
     return render_template('index2.html')
 
