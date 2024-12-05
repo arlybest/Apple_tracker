@@ -66,6 +66,11 @@ def set_alert(alert: Alert):
 def home():
     return render_template('index.html')
 
+#route vers index2.html
+@main.route('/index')
+def index2():
+    return render_template('index2.html')
+
 # Route to fetch historical stock prices
 @main.route('/stock-data', methods=['GET'])
 def stock_data():
