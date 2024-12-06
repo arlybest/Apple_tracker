@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Stock Price Dashboard{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.1.3/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .sidebar {
+            height: 100%;
+            width: 250px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            background-color: #343a40;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            padding: 15px;
+            text-decoration: none;
+            font-size: 18px;
+            color: white;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #575757;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .main-header {
+            background-color: #f8f9fa;
+            padding: 10px;
+        }
+        .main-header h1 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2 class="text-white text-center">Stock Dashboard</h2>
+        <a href="{{ url_for('main.home') }}">Accueil</a>
+        <a href="{{ url_for('main.stock_data') }}">Données Boursières</a>
+        <a href="{{ url_for('main.predict') }}">Prédictions</a>
+        <a href="{{ url_for('main.set_alert') }}">Alertes de Prix</a>
+        <a href="{{ url_for('main.download_historical_data') }}">Télécharger Données</a>
+        <a href="{{ url_for('main.get_news') }}">Actualités</a>
+        <a href="{{ url_for('main.track_price', threshold=100) }}">Suivi de Prix</a>
+    </div>
+
+    <div class="content">
+        <div class="main-header">
+            <h1>Bienvenue dans le tableau de bord boursier</h1>
+        </div>
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>
