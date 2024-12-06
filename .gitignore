@@ -6,4 +6,9 @@
 
 /__pycache__
 
+<<<<<<< HEAD
 /.DS_Store*.pyc
+=======
+.DS_Store
+>>>>>>> a0e0639 (Add .DS_Store to .gitignore)
+*.pyc
