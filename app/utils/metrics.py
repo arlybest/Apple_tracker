@@ -26,7 +26,6 @@ def get_financial_metrics(stock_symbol):
             "dividend_yield": info.get("dividendYield"),
             "beta": info.get("beta"),
             "market_cap": info.get("marketCap"),
-            "sector": info.get("sector"),
         }
         
         return metrics
