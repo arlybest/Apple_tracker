@@ -1,9 +1,10 @@
 from flask import Flask, Blueprint, jsonify, render_template, Response, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from app.utils.scraper import get_stock_data as scraper_stock_data  # Avoid naming conflicts
-from app.models.lstm import predict_lstm  # LSTM prediction model
+from app.utils.scraper import get_stock_data as scraper_stock_data  # Évite les conflits de nom
+from app.models.lstm import predict_lstm  # Modèle de prédiction LSTM
 from pydantic import BaseModel
+from app.utils.metrics import get_financial_metrics  # Fonction pour récupérer les métriques financières
 from flask_pydantic import validate
 import yfinance as yf
 import pandas as pd
@@ -12,20 +13,21 @@ from email.mime.text import MIMEText
 import os
 import logging
 
-# Configure logging
+# Configuration du logging pour capturer les erreurs
 logging.basicConfig(level=logging.ERROR)
 
+# Initialisation de l'application Flask et du rate limiter
 app = Flask(__name__)
 limiter = Limiter(get_remote_address, app=app)
 main = Blueprint("main", __name__)
 
-# Load sensitive credentials from environment variables
+# Chargement des variables sensibles à partir des variables d'environnement
 SMTP_SERVER = os.getenv("SMTP_SERVER")
 SMTP_PORT = os.getenv("SMTP_PORT")
 SMTP_EMAIL = os.getenv("SMTP_EMAIL")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
-# Validate environment variables
+# Vérification des variables d'environnement essentielles
 for var_name, var_value in {
     "SMTP_SERVER": SMTP_SERVER,
     "SMTP_PORT": SMTP_PORT,
@@ -33,123 +35,117 @@ for var_name, var_value in {
     "SMTP_PASSWORD": SMTP_PASSWORD,
 }.items():
     if not var_value:
-        raise ValueError(f"Missing environment variable: {var_name}")
+        raise ValueError(f"Variable d'environnement manquante : {var_name}")
 
-# Pydantic class for managing alerts
-class Alert(BaseModel):
-    email: str
-    price: float
+# ========================= ROUTES =========================
 
-# Function to send an email alert
-def send_email_alert(email: str, price: float):
+# Route pour récupérer les métriques financières d'une action spécifique
+@main.route('/financial-metrics/<string:stock_symbol>', methods=['GET'])
+def financial_metrics(stock_symbol):
     """
-    Sends a stock price alert email.
+    Récupère les métriques financières d'un symbole boursier.
 
-    Parameters:
-        email (str): Recipient's email address.
-        price (float): Stock price triggering the alert.
+    Paramètres:
+        stock_symbol (str): Le symbole boursier (ex. : 'AAPL').
+
+    Retourne:
+        JSON contenant les métriques financières.
     """
     try:
-        msg = MIMEText(f"Apple stock price has reached your alert level: ${price}")
-        msg['Subject'] = 'Price Alert!'
+        metrics = get_financial_metrics(stock_symbol)
+        return jsonify({"stock_symbol": stock_symbol, "metrics": metrics}), 200
+    except RuntimeError as e:
+        logging.error(f"Erreur lors de la récupération des métriques pour {stock_symbol}: {e}")
+        return jsonify({"error": str(e)}), 500
+
+# Classe Pydantic pour gérer les alertes
+class Alert(BaseModel):
+    email: str  # Adresse e-mail du destinataire
+    price: float  # Prix seuil de l'alerte
+
+# Fonction pour envoyer une alerte par e-mail
+def send_email_alert(email: str, price: float):
+    """
+    Envoie une alerte e-mail lorsque le prix de l'action atteint un seuil.
+
+    Paramètres:
+        email (str): Adresse e-mail du destinataire.
+        price (float): Prix déclencheur de l'alerte.
+    """
+    try:
+        msg = MIMEText(f"Le prix de l'action Apple a atteint votre seuil : ${price}")
+        msg['Subject'] = 'Alerte de prix !'
         msg['From'] = SMTP_EMAIL
         msg['To'] = email
 
+        # Connexion au serveur SMTP
         with smtplib.SMTP(SMTP_SERVER, int(SMTP_PORT)) as server:
             server.starttls()
             server.login(SMTP_EMAIL, SMTP_PASSWORD)
             server.sendmail(SMTP_EMAIL, email, msg.as_string())
     except Exception as e:
-        logging.error(f"Failed to send email to {email}: {e}")
+        logging.error(f"Échec de l'envoi de l'e-mail à {email}: {e}")
 
-# Route for setting a price alert
+# Route pour définir une alerte sur le prix d'une action
 @main.route('/set-alert/', methods=['POST'])
 @validate()
-@limiter.limit("10 per minute")  # Limit to 10 requests per minute
+@limiter.limit("10 per minute")  # Limite : 10 requêtes par minute
 def set_alert(alert: Alert):
     """
-    Set a price alert for AAPL stock.
+    Définit une alerte de prix pour l'action AAPL.
 
-    Parameters:
-        alert (Alert): Contains the email and price threshold.
+    Paramètres:
+        alert (Alert): Contient l'e-mail et le prix seuil.
 
-    Returns:
-        JSON response confirming the alert.
+    Retourne:
+        JSON confirmant la configuration de l'alerte.
     """
     send_email_alert(alert.email, alert.price)
-    return jsonify({"message": "Alert set!"}), 200
+    return jsonify({"message": "Alerte configurée avec succès !"}), 200
 
-# Route to display the homepage
+# Route pour afficher la page d'accueil
 @main.route('/')
 def home():
+    """
+    Affiche la page d'accueil de l'application.
+    """
     return render_template('index.html')
 
-# Route to fetch historical stock prices
+# Route pour récupérer les données historiques d'une action
 @main.route('/stock-data', methods=['GET'])
 def stock_data():
+    """
+    Récupère les données historiques du symbole AAPL.
+
+    Retourne:
+        JSON contenant les prix historiques.
+    """
     try:
         stock_symbol = "AAPL"
         prices = scraper_stock_data(stock_symbol)
         return jsonify({"stock_symbol": stock_symbol, "prices": prices}), 200
     except Exception as e:
-        logging.error(f"Error in stock_data: {e}")
-        return jsonify({"error": "Failed to fetch stock data"}), 500
+        logging.error(f"Erreur dans stock_data: {e}")
+        return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
 
-# Route to fetch stock price predictions
-@main.route('/predict', methods=['GET'])
-def predict():
-    try:
-        prediction = predict_lstm()
-        return jsonify({"stock_symbol": "AAPL", "Prediction": prediction}), 200
-    except Exception as e:
-        logging.error(f"Error in predict: {e}")
-        return jsonify({"error": "Failed to generate predictions"}), 500
-
-# Route to compare predicted vs. actual stock prices
-@main.route('/predict-vs-actual', methods=['GET'])
-def predict_vs_actual():
-    try:
-        stock_symbol = "AAPL"
-        stock = yf.Ticker(stock_symbol)
-        historical_data = stock.history(period="3mo")['Close']
-        if historical_data.empty:
-            raise ValueError("No historical data available")
-        
-        predicted_data = predict_lstm(historical_data)
-
-        actual_vs_predicted = {
-            "actual": historical_data.tolist(),
-            "predicted": predicted_data.tolist()
-        }
-        return jsonify({"stock_symbol": stock_symbol, "data": actual_vs_predicted}), 200
-    except Exception as e:
-        logging.error(f"Error in predict_vs_actual: {e}")
-        return jsonify({"error": "Failed to fetch prediction and comparison data"}), 500
-
-# Route to download historical stock data as CSV
-@main.route('/download-historical-data', methods=['GET'])
-def download_historical_data():
-    try:
-        stock_symbol = "AAPL"
-        stock = yf.Ticker(stock_symbol)
-        historical_data = stock.history(period="3mo")
-        if historical_data.empty:
-            raise ValueError("No historical data available")
-        
-        historical_data.reset_index(inplace=True)
-        csv = historical_data.to_csv(index=False)
-        return Response(
-            csv,
-            mimetype="text/csv",
-            headers={"Content-Disposition": f"attachment; filename={stock_symbol}_historical_data.csv"}
-        )
-    except Exception as e:
-        logging.error(f"Error in download_historical_data: {e}")
-        return jsonify({"error": "Failed to download historical data"}), 500
-
-# Route to fetch stock prices for multiple enterprises
+# Route pour récupérer les données de plusieurs entreprises
 @main.route('/multi-stock-data', methods=['GET'])
 def multi_stock_data():
+    """
+    Récupère les données de clôture des actions de plusieurs entreprises.
+
+    Entreprises suivies :
+        - Apple (AAPL)
+        - Microsoft (MSFT)
+        - Google (GOOGL)
+        - Amazon (AMZN)
+        - Tesla (TSLA)
+        - Meta (META)
+        - Nvidia (NVDA)
+
+    Retourne:
+        JSON contenant les prix les plus récents.
+    """
     try:
         stock_symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA"]
         stock_data = {}
@@ -163,42 +159,14 @@ def multi_stock_data():
                     "name": stock.info.get("longName", "N/A")
                 }
             else:
-                stock_data[symbol] = {"error": "No data available"}
+                stock_data[symbol] = {"error": "Aucune donnée disponible"}
 
         return jsonify(stock_data), 200
     except Exception as e:
-        logging.error(f"Error in multi_stock_data: {e}")
-        return jsonify({"error": "Failed to fetch multiple stock data"}), 500
+        logging.error(f"Erreur dans multi_stock_data: {e}")
+        return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
 
-# Route to fetch news related to AAPL
-@main.route('/news', methods=['GET'])
-def get_news():
-    try:
-        stock_symbol = "AAPL"
-        stock = yf.Ticker(stock_symbol)
-        news_data = getattr(stock, "news", [])
-        return jsonify({"stock_symbol": stock_symbol, "news": news_data}), 200
-    except Exception as e:
-        logging.error(f"Error in get_news: {e}")
-        return jsonify({"error": "Failed to fetch news data"}), 500
-
-# Route to track stock price against a threshold
-@main.route('/track-price/<float:threshold>', methods=['GET'])
-def track_price(threshold):
-    try:
-        stock_symbol = "AAPL"
-        current_price_data = scraper_stock_data(stock_symbol)
-        if not current_price_data or not isinstance(current_price_data, list):
-            raise ValueError("Unexpected data format for current price")
-
-        current_price = float(current_price_data[0])
-        alert_message = f"Price of {stock_symbol} {'exceeded' if current_price > threshold else 'is below'} ${threshold}."
-        return jsonify({"alert": alert_message, "current_price": current_price}), 200
-    except Exception as e:
-        logging.error(f"Error in track_price: {e}")
-        return jsonify({"error": "Failed to track price"}), 500
-
-# Register the blueprint and launch the application
+# Enregistrement du blueprint et lancement de l'application
 app.register_blueprint(main)
 
 if __name__ == "__main__":
