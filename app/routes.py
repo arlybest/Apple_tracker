@@ -113,12 +113,20 @@ def home():
     """
     stock_symbol = "AAPL"  # This can be dynamic if needed
     try:
-        # Assuming get_financial_metrics now returns current and previous metrics
-        metrics, previous_day_metrics = get_financial_metrics(stock_symbol)
-        return render_template('index.html', stock_symbol=stock_symbol, metrics=metrics, previous_day_metrics=previous_day_metrics)
+        # Fetch the previous day's metrics
+        previous_day_metrics = get_financial_metrics(stock_symbol)
+
+        # Ensure previous_day_metrics are available or fallback to an empty dict
+        return render_template('index.html', stock_symbol=stock_symbol, 
+                               previous_day_metrics=previous_day_metrics or {}, 
+                               error=None)
     except Exception as e:
         logging.error(f"Erreur lors de la récupération des métriques pour {stock_symbol}: {e}")
-        return render_template('index.html', error="Impossible de récupérer les métriques.")
+        # Return the error message to the template
+        return render_template('index.html', stock_symbol=stock_symbol, 
+                               previous_day_metrics={}, 
+                               error="Impossible de récupérer les métriques.")
+
 
 
 
