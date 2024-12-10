@@ -22,7 +22,7 @@ def get_financial_metrics(stock_symbol):
         
         # Extraction des métriques financières importantes
         metrics = {
-            "PE_ratio": info.get("trailingPE"),
+            "pe_ratio": info.get("trailingPE"),
             "dividend_yield": info.get("dividendYield"),
             "beta": info.get("beta"),
             "market_cap": info.get("marketCap"),

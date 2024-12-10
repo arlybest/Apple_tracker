@@ -106,13 +106,21 @@ def set_alert(alert: Alert):
     return jsonify({"message": "Alerte configurée avec succès !"}), 200
 
 
-# Route pour afficher la page d'accueil
 @main.route('/')
 def home():
     """
     Affiche la page d'accueil de l'application.
     """
-    return render_template('index.html')
+    stock_symbol = "AAPL"  # This can be dynamic if needed
+    try:
+        # Assuming get_financial_metrics now returns current and previous metrics
+        metrics, previous_day_metrics = get_financial_metrics(stock_symbol)
+        return render_template('index.html', stock_symbol=stock_symbol, metrics=metrics, previous_day_metrics=previous_day_metrics)
+    except Exception as e:
+        logging.error(f"Erreur lors de la récupération des métriques pour {stock_symbol}: {e}")
+        return render_template('index.html', error="Impossible de récupérer les métriques.")
+
+
 
 
 # Route pour récupérer les données historiques d'une action
