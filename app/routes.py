@@ -1,15 +1,15 @@
 from flask import Flask, Blueprint, jsonify, render_template, Response, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from app.utils.scraper import get_stock_data as scraper_stock_data  # Évite les conflits de nom
-from app.models.lstm import predict_lstm  # Modèle de prédiction LSTM
+from app.utils.scraper import get_stock_data as scraper_stock_data
+from app.models.lstm import predict_lstm
 from pydantic import BaseModel
-from app.utils.metrics import get_financial_metrics  # Fonction pour récupérer les métriques financières
+from app.utils.metrics import get_financial_metrics
 from flask_pydantic import validate
 import yfinance as yf
-import pandas as pd
 import smtplib
 from email.mime.text import MIMEText
+from dotenv import load_dotenv
 import os
 import logging
 
@@ -21,21 +21,21 @@ app = Flask(__name__)
 limiter = Limiter(get_remote_address, app=app)
 main = Blueprint("main", __name__)
 
-# Chargement des variables sensibles à partir des variables d'environnement
+# Chargement des variables d'environnement
+load_dotenv()
+
+# Chargement des variables sensibles
 SMTP_SERVER = os.getenv("SMTP_SERVER")
 SMTP_PORT = os.getenv("SMTP_PORT")
 SMTP_EMAIL = os.getenv("SMTP_EMAIL")
 SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
 
 # Vérification des variables d'environnement essentielles
-for var_name, var_value in {
-    "SMTP_SERVER": SMTP_SERVER,
-    "SMTP_PORT": SMTP_PORT,
-    "SMTP_EMAIL": SMTP_EMAIL,
-    "SMTP_PASSWORD": SMTP_PASSWORD,
-}.items():
-    if not var_value:
-        raise ValueError(f"Variable d'environnement manquante : {var_name}")
+required_env_vars = {"SMTP_SERVER", "SMTP_PORT", "SMTP_EMAIL", "SMTP_PASSWORD"}
+missing_vars = [var for var in required_env_vars if not os.getenv(var)]
+if missing_vars:
+    raise ValueError(f"Les variables d'environnement suivantes sont manquantes : {', '.join(missing_vars)}")
+
 
 # ========================= ROUTES =========================
 
@@ -58,10 +58,12 @@ def financial_metrics(stock_symbol):
         logging.error(f"Erreur lors de la récupération des métriques pour {stock_symbol}: {e}")
         return jsonify({"error": str(e)}), 500
 
+
 # Classe Pydantic pour gérer les alertes
 class Alert(BaseModel):
-    email: str  # Adresse e-mail du destinataire
-    price: float  # Prix seuil de l'alerte
+    email: str
+    price: float
+
 
 # Fonction pour envoyer une alerte par e-mail
 def send_email_alert(email: str, price: float):
@@ -78,7 +80,6 @@ def send_email_alert(email: str, price: float):
         msg['From'] = SMTP_EMAIL
         msg['To'] = email
 
-        # Connexion au serveur SMTP
         with smtplib.SMTP(SMTP_SERVER, int(SMTP_PORT)) as server:
             server.starttls()
             server.login(SMTP_EMAIL, SMTP_PASSWORD)
@@ -86,10 +87,11 @@ def send_email_alert(email: str, price: float):
     except Exception as e:
         logging.error(f"Échec de l'envoi de l'e-mail à {email}: {e}")
 
+
 # Route pour définir une alerte sur le prix d'une action
 @main.route('/set-alert/', methods=['POST'])
 @validate()
-@limiter.limit("10 per minute")  # Limite : 10 requêtes par minute
+@limiter.limit("10 per minute")
 def set_alert(alert: Alert):
     """
     Définit une alerte de prix pour l'action AAPL.
@@ -103,6 +105,7 @@ def set_alert(alert: Alert):
     send_email_alert(alert.email, alert.price)
     return jsonify({"message": "Alerte configurée avec succès !"}), 200
 
+
 # Route pour afficher la page d'accueil
 @main.route('/')
 def home():
@@ -111,11 +114,12 @@ def home():
     """
     return render_template('index.html')
 
+
 # Route pour récupérer les données historiques d'une action
 @main.route('/stock-data', methods=['GET'])
 def stock_data():
     """
-    Récupère les données historiques du symbole AAPL.
+    Récupère les données historiques pour AAPL.
 
     Retourne:
         JSON contenant les prix historiques.
@@ -128,20 +132,12 @@ def stock_data():
         logging.error(f"Erreur dans stock_data: {e}")
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
 
+
 # Route pour récupérer les données de plusieurs entreprises
 @main.route('/multi-stock-data', methods=['GET'])
 def multi_stock_data():
     """
     Récupère les données de clôture des actions de plusieurs entreprises.
-
-    Entreprises suivies :
-        - Apple (AAPL)
-        - Microsoft (MSFT)
-        - Google (GOOGL)
-        - Amazon (AMZN)
-        - Tesla (TSLA)
-        - Meta (META)
-        - Nvidia (NVDA)
 
     Retourne:
         JSON contenant les prix les plus récents.
@@ -155,7 +151,7 @@ def multi_stock_data():
             historical_data = stock.history(period="1d")['Close']
             if not historical_data.empty:
                 stock_data[symbol] = {
-                    "latest_close": historical_data.iloc[-1],
+                    "latest_close": round(historical_data.iloc[-1], 2),
                     "name": stock.info.get("longName", "N/A")
                 }
             else:
@@ -165,6 +161,7 @@ def multi_stock_data():
     except Exception as e:
         logging.error(f"Erreur dans multi_stock_data: {e}")
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
+
 
 # Enregistrement du blueprint et lancement de l'application
 app.register_blueprint(main)
