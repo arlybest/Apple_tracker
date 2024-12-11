@@ -43,7 +43,7 @@
       <!-- Barre latérale -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
-          <a href="index.html" class="app-brand-link">
+          <a href="{{ url_for('main.home') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
               <!-- Logo en SVG -->
               <svg width="25" viewBox="0 0 25 42" xmlns="http://www.w3.org/2000/svg">
@@ -53,7 +53,7 @@
                 </g>
               </svg>
             </span>
-            <span class="app-brand-text demo menu-text fw-bolder ms-2">Apple Tracker</span>
+            <span class="app-brand-text demo menu-text fw-bolder ">Apple Tracker</span>
           </a>
           <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
             <i class="bx bx-chevron-left bx-sm align-middle"></i>
@@ -64,12 +64,21 @@
         <ul class="menu-inner py-1">
           <!-- Lien vers le tableau de bord -->
           <li class="menu-item active">
-            <a href="index.html" class="menu-link">
-              <i class="menu-icon tf-icons bx bx-home-circle"></i>
-              <div data-i18n="Analytics">Tableau de bord</div>
-            </a>
+              <a href="{{ url_for('main.home') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                  <div data-i18n="Analytics">Tableau de bord</div>
+              </a>
           </li>
-        </ul>
+      
+          <!-- Lien vers la page Machine Learning -->
+          <li class="menu-item">
+              <a href="{{ url_for('main.prediction') }}" class="menu-link">
+                  <i class="menu-icon tf-icons bx bx-brain"></i>
+                  <div data-i18n="Machine Learning">Machine Learning</div>
+              </a>
+          </li>
+      </ul>
+      
       </aside>
 
       <!-- Conteneur principal -->

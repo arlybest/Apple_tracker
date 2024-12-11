@@ -244,3 +244,8 @@ def stock_data():
     except Exception as e:
         logging.error(f"Erreur dans stock_data: {e}")
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
+
+
+@main.route('/prediction', endpoint='prediction')
+def machine_learning():
+    return render_template('prediction.html')
