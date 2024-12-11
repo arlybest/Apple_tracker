@@ -1,167 +1,139 @@
 <!DOCTYPE html>
-  <head>
-    <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
-    />
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
 
-    <title>Apple Tracker - Analytics | Dashboard</title>
+  <title>Apple Tracker - Tableau de bord analytique</title>
+  <meta name="description" content="Tableau de bord d'analyse pour le suivi des performances Apple." />
 
-    <meta name="description" content="" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
 
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+  <!-- Polices -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap"
-      rel="stylesheet"
-    />
-<!-- Icons. Uncomment required icon fonts -->
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}" />
+  <!-- Icônes -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}" />
 
-<!-- Core CSS -->
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}" class="template-customizer-core-css" />
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css" />
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}" />
+  <!-- Styles CSS principaux -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}" class="template-customizer-core-css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}" />
 
-<!-- Vendors CSS -->
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
+  <!-- CSS des bibliothèques tierces -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apex-charts.css') }}" />
 
-<link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apex-charts.css') }}" />
+  <!-- Scripts JS auxiliaires -->
+  <script src="{{ url_for('static', filename='assets/vendor/js/helpers.js') }}"></script>
 
-<!-- Page CSS -->
+  <!-- Configuration du thème -->
+  <script src="{{ url_for('static', filename='assets/js/config.js') }}"></script>
+</head>
 
-<!-- Helpers -->
-<script src="{{ url_for('static', filename='assets/vendor/js/helpers.js') }}"></script>
+<body>
+  <!-- Conteneur de la mise en page -->
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
 
-<!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
-<!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
-<script src="{{ url_for('static', filename='assets/js/config.js') }}"></script>
+      <!-- Barre latérale -->
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo">
+          <a href="index.html" class="app-brand-link">
+            <span class="app-brand-logo demo">
+              <!-- Logo en SVG -->
+              <svg width="25" viewBox="0 0 25 42" xmlns="http://www.w3.org/2000/svg">
+                <g fill="none" fill-rule="evenodd">
+                  <path d="M13.79,0.36 L3.4,7.44 C0.57,9.69 -0.38,12.48 0.56,15.8 C0.69,16.23 1.1,17.79 3.12,19.23 C3.81,19.72 5.32,20.38 7.65,21.22 L2.63,24.55 C0.45,26.3 0.09,28.51 1.56,31.17 C2.84,32.82 5.21,33.26 7.09,32.54 C8.35,32.06 11.46,30 16.42,26.37 C18.03,24.5 18.7,22.45 18.41,20.24 C17.96,17.53 16.18,15.58 13.05,14.37 L10.92,13.47 L18.62,7.98 Z" fill="#696cff"></path>
+                  <path d="M20.6,7.13 L25.6,13.8 C26.26,14.68 26.08,15.94 25.2,16.6 C24.85,16.86 24.43,17 24,17 H14 C12.9,17 12,16.1 12,15 C12,14.57 12.14,14.15 12.4,13.8 L17.4,7.13 C18.06,6.25 19.32,6.07 20.2,6.73 C20.35,6.85 20.49,6.98 20.6,7.13 Z" fill="#696cff"></path>
+                </g>
+              </svg>
+            </span>
+            <span class="app-brand-text demo menu-text fw-bolder ms-2">Apple Tracker</span>
+          </a>
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <i class="bx bx-chevron-left bx-sm align-middle"></i>
+          </a>
+        </div>
 
-  </head>
-
-  <body>
-    <!-- Layout wrapper -->
-    <div class="layout-wrapper layout-content-navbar">
-      <div class="layout-container">
-        <!-- Menu -->
-
-        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
-          <div class="app-brand demo">
-            <a href="index.html" class="app-brand-link">
-              <span class="app-brand-logo demo">
-                <svg
-                  width="25"
-                  viewBox="0 0 25 42"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <g fill="none" fill-rule="evenodd">
-                    <path
-                      d="M13.79,0.36 L3.4,7.44 C0.57,9.69 -0.38,12.48 0.56,15.8 C0.69,16.23 1.1,17.79 3.12,19.23 C3.81,19.72 5.32,20.38 7.65,21.22 L2.63,24.55 C0.45,26.3 0.09,28.51 1.56,31.17 C2.84,32.82 5.21,33.26 7.09,32.54 C8.35,32.06 11.46,30 16.42,26.37 C18.03,24.5 18.7,22.45 18.41,20.24 C17.96,17.53 16.18,15.58 13.05,14.37 L10.92,13.47 L18.62,7.98 Z"
-                      fill="#696cff"
-                    ></path>
-                    <path
-                      d="M20.6,7.13 L25.6,13.8 C26.26,14.68 26.08,15.94 25.2,16.6 C24.85,16.86 24.43,17 24,17 H14 C12.9,17 12,16.1 12,15 C12,14.57 12.14,14.15 12.4,13.8 L17.4,7.13 C18.06,6.25 19.32,6.07 20.2,6.73 C20.35,6.85 20.49,6.98 20.6,7.13 Z"
-                      fill="#696cff"
-                    ></path>
-                  </g>
-                </svg>
-              </span>
-              <span class="app-brand-text demo menu-text fw-bolder ms-2">Apple Tracker</span>
+        <div class="menu-inner-shadow"></div>
+        <ul class="menu-inner py-1">
+          <!-- Lien vers le tableau de bord -->
+          <li class="menu-item active">
+            <a href="index.html" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-home-circle"></i>
+              <div data-i18n="Analytics">Tableau de bord</div>
             </a>
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-              <i class="bx bx-chevron-left bx-sm align-middle"></i>
+          </li>
+        </ul>
+      </aside>
+
+      <!-- Conteneur principal -->
+      <div class="layout-page">
+
+        <!-- Barre de navigation -->
+        <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+              <i class="bx bx-menu bx-sm"></i>
             </a>
-          </div>          
-          <div class="menu-inner-shadow"></div>
+          </div>
 
-          <ul class="menu-inner py-1">
-            <!-- Dashboard -->
-            <li class="menu-item active">
-              <a href="index.html" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                <div data-i18n="Analytics">Dashboard</div>
-              </a>
-            </li>
-          </ul>
-        </aside>
-        <!-- / Menu -->
-        <!-- Layout container -->
-        <div class="layout-page">
-          <!-- Navbar -->
-          <nav
-            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
-            id="layout-navbar"
-          >
-            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
-              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
-                <i class="bx bx-menu bx-sm"></i>
-              </a>
-            </div>
-
-            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
-              <!-- Search -->
-              <div class="navbar-nav align-items-center">
-                <div class="nav-item d-flex align-items-center">
-                  <i class="bx bx-search fs-4 lh-0"></i>
-                  <input
-                    type="text"
-                    class="form-control border-0 shadow-none"
-                    placeholder="Search..."
-                    aria-label="Search..."
-                  />
-                </div>
+          <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+            <!-- Barre de recherche -->
+            <div class="navbar-nav align-items-center">
+              <div class="nav-item d-flex align-items-center">
+                <i class="bx bx-search fs-4 lh-0"></i>
+                <input type="text" class="form-control border-0 shadow-none" placeholder="Recherche..." aria-label="Recherche..." />
               </div>
-              <!-- /Search -->
-              <ul class="navbar-nav flex-row align-items-center ms-auto">
-                <!-- User -->
-                <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                  <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
-                    <div class="avatar avatar-online">
-                      <img src="{{ url_for('static', filename='assets/img/avatars/2.jpg') }}" alt class="w-px-40 h-auto rounded-circle" />
-                    </div>
-                  </a>
-                  <ul class="dropdown-menu dropdown-menu-end">
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <div class="d-flex">
-                          <div class="flex-shrink-0 me-3">
-                            <div class="avatar avatar-online">
-                              <img src="{{ url_for('static', filename='assets/img/avatars/2.jpg') }}" alt class="w-px-40 h-auto rounded-circle" />
-                            </div>
-                          </div>
-                          <div class="flex-grow-1">
-                            <span class="fw-semibold d-block">Ronic</span>
+            </div>
+            <!-- Profil utilisateur -->
+            <ul class="navbar-nav flex-row align-items-center ms-auto">
+              <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                  <div class="avatar avatar-online">
+                    <img src="{{ url_for('static', filename='assets/img/avatars/2.jpg') }}" alt class="w-px-40 h-auto rounded-circle" />
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      <div class="d-flex">
+                        <div class="flex-shrink-0 me-3">
+                          <div class="avatar avatar-online">
+                            <img src="{{ url_for('static', filename='assets/img/avatars/2.jpg') }}" alt class="w-px-40 h-auto rounded-circle" />
                           </div>
                         </div>
-                      </a>
-                    </li>
-                    <li>
-                      <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="#">
-                        <i class="bx bx-user me-2"></i>
-                        <span class="align-middle">My Profile</span>
-                      </a>
-                    </li>
-                    <li>
-                      <div class="dropdown-divider"></div>
-                    </li>
-                    <li>
-                      <a class="dropdown-item" href="auth-login-basic.html">
-                        <i class="bx bx-power-off me-2"></i>
-                        <span class="align-middle">Log Out</span>
-                      </a>
-                    </li>
-                  </ul>
-                </li>
-                <!--/ User -->
-              </ul>
+                        <div class="flex-grow-1">
+                          <span class="fw-semibold d-block">Ronic</span>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      <i class="bx bx-user me-2"></i>
+                      <span class="align-middle">Mon profil</span>
+                    </a>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="auth-login-basic.html">
+                      <i class="bx bx-power-off me-2"></i>
+                      <span class="align-middle">Se déconnecter</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
             </div>
           </nav>
 
@@ -316,7 +288,7 @@
                     <!-- Expense Overview -->
                     <div class="row">
                       <div class="col-md-8 order-1 mb-4">
-                        <div class="card h-100" style="min-height: 400px;">
+                        <div class="card h-100" style="min-height: 300px;">
                           <div class="text-center" style="margin-top: 15px;">
                             <div class="dropdown">
                               <button
@@ -340,7 +312,7 @@
                                     <img src="{{ url_for('static', filename='assets/img/icons/unicons/wallet.png') }}" alt="User" />
                                   </div>
                                   <div>
-                                    <small class="text-muted d-block">Price</small>
+                                    <small class="text-muted d-block">Prix</small>
                                     <div class="d-flex align-items-center">
                                       <h6 id="currentPrice" class="mb-0 me-1">--</h6>
                                       <small id="priceChange" class="fw-semibold">
@@ -357,8 +329,6 @@
                         </div>
                       </div>  
                     </div>
-                    
-  
 </div>
 <!--/ Expense Overview -->
 
@@ -399,7 +369,7 @@
       document.addEventListener('DOMContentLoaded', async function () {
         const incomeChartEl = document.querySelector('#incomeChart');
         let incomeChart; // Store the ApexCharts instance
-        const dropdownMenu = document.querySelector('.dropdown-menu');
+        const dropdownMenu = document.querySelector('#yearDropdown'); // Updated to target the correct dropdown menu
         const dropdownButton = document.querySelector('#growthReportId');
         const priceInfo = document.querySelector('#currentPrice');
         const priceChange = document.querySelector('#priceChange');
@@ -467,6 +437,13 @@
             incomeChart.updateOptions({
               series: [{ data: prices }],
               xaxis: { categories },
+              yaxis: {
+                labels: {
+                  formatter: function (value) {
+                    return value.toFixed(2); // Format y-axis values to 2 decimal places
+                  }
+                }
+              }
             });
           } else {
             const incomeChartConfig = {
@@ -483,6 +460,13 @@
                   },
                 },
               },
+              yaxis: {
+                labels: {
+                  formatter: function (value) {
+                    return value.toFixed(2); // Format y-axis values to 2 decimal places
+                  }
+                }
+              }
             };
             incomeChart = new ApexCharts(incomeChartEl, incomeChartConfig);
             incomeChart.render();
@@ -506,26 +490,21 @@
               updateChart(initialYearData, yearNumber);
             }
           }
-        }
-        
-      
+        } 
         init();
       });
     </script>
+    
 
     <!-- Main JS -->
     <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
     
-    <!-- Page JS -->
     <!-- <script src="{{ url_for('static', filename='assets/js/dashboards-analytics.js') }}"></script> -->
-    <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <!-- Bootstrap JS (including Popper.js for dropdown functionality) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist//bootstrap.bundle.min.js"></script>
 
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
 
   </body>
 </html>
