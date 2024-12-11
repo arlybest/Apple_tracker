@@ -179,8 +179,7 @@ def multi_stock_data():
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
 
 
-# Enregistrement du blueprint et lancement de l'application
-app.register_blueprint(main)
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
+
+
