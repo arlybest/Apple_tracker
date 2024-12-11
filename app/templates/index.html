@@ -310,10 +310,60 @@
                                           {% endif %}
                                       {% endif %}
                                   </div>
-                              </div>
+                              </div>      
                           </div>
                       </div>
-                  </div>
+                    <!-- Expense Overview -->
+                    <div class="row">
+                      <div class="col-md-8 order-1 mb-4">
+                        <div class="card h-100" style="min-height: 400px;">
+                          <div class="text-center" style="margin-top: 15px;">
+                            <div class="dropdown">
+                              <button
+                                class="btn btn-sm btn-outline-primary dropdown-toggle"
+                                type="button"
+                                id="growthReportId"
+                                data-bs-toggle="dropdown"
+                                aria-haspopup="true"
+                                aria-expanded="false"
+                              >
+                                Select Year
+                              </button>
+                              <div class="dropdown-menu dropdown-menu-end" id="yearDropdown"></div>
+                            </div>
+                          </div>
+                          <div class="card-body px-0">
+                            <div class="tab-content p-0">
+                              <div class="tab-pane fade show active" id="navs-tabs-line-card-income" role="tabpanel">
+                                <div class="d-flex p-4 pt-3">
+                                  <div class="avatar flex-shrink-0 me-3">
+                                    <img src="{{ url_for('static', filename='assets/img/icons/unicons/wallet.png') }}" alt="User" />
+                                  </div>
+                                  <div>
+                                    <small class="text-muted d-block">Price</small>
+                                    <div class="d-flex align-items-center">
+                                      <h6 id="currentPrice" class="mb-0 me-1">--</h6>
+                                      <small id="priceChange" class="fw-semibold">
+                                        <i id="chevronIcon" class="bx"></i>
+                                        --%
+                                      </small>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div id="incomeChart"></div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>  
+                    </div>
+                    
+  
+</div>
+<!--/ Expense Overview -->
+
+<!--/ Expense Overview -->
+
               </div>
           </div>          
         </div>      
@@ -345,12 +395,137 @@
     
     <!-- Vendors JS -->
     <script src="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
-    
+    <script>
+      document.addEventListener('DOMContentLoaded', async function () {
+        const incomeChartEl = document.querySelector('#incomeChart');
+        let incomeChart; // Store the ApexCharts instance
+        const dropdownMenu = document.querySelector('.dropdown-menu');
+        const dropdownButton = document.querySelector('#growthReportId');
+        const priceInfo = document.querySelector('#currentPrice');
+        const priceChange = document.querySelector('#priceChange');
+      
+        // Fetch stock data from the server
+        async function fetchStockData() {
+          try {
+            const response = await fetch('http://127.0.0.1:5000/stock-data');
+            if (!response.ok) throw new Error('Failed to fetch stock data');
+            return await response.json();
+          } catch (error) {
+            console.error('Error fetching stock data:', error);
+            return null;
+          }
+        }
+      
+        function updateDropdownMenu(data) {
+          dropdownMenu.innerHTML = ''; // Clear existing items
+          Object.keys(data).forEach((key) => {
+            console.log("Checking key:", key); // Log each key being checked
+            const yearMatch = key.match(/^(\d{4})_prices$/);
+        
+            if (yearMatch) {
+              const yearNumber = yearMatch[1]; // Extract the year from the match
+              console.log("Found year:", yearNumber); // Log the year found
+        
+              const dropdownItem = document.createElement('a');
+              dropdownItem.classList.add('dropdown-item');
+              dropdownItem.href = 'javascript:void(0);';
+              dropdownItem.textContent = yearNumber;
+        
+              dropdownItem.addEventListener('click', () => {
+                dropdownButton.textContent = yearNumber; // Update dropdown text
+                updateChart(data[key], yearNumber); // Update chart with selected year
+              });
+        
+              console.log("Appending to dropdown menu:", dropdownItem);
+              dropdownMenu.appendChild(dropdownItem);
+            }
+          });
+        }
+        
+        // Update the chart with selected year's data
+        function updateChart(yearData, year) {
+          const categories = yearData.map((item) => item.mois); // Months
+          const prices = yearData.map((item) => item.prix); // Prices
+      
+          // Calculate percentage change for price info
+          const lastPrice = prices[prices.length - 1];
+          const firstPrice = prices[0];
+          const percentageChange = (((lastPrice - firstPrice) / firstPrice) * 100).toFixed(2);
+      
+          // Update price info
+          priceInfo.textContent = `$${lastPrice.toFixed(2)}`;
+          priceChange.innerHTML = `
+            <i class="bx ${lastPrice > firstPrice ? 'bx-chevron-up' : 'bx-chevron-down'}"></i>
+            ${Math.abs(percentageChange)}%
+          `;
+          priceChange.className = `fw-semibold ${
+            lastPrice > firstPrice ? 'text-success' : 'text-danger'
+          }`;
+      
+          // Update or initialize the chart
+          if (incomeChart) {
+            incomeChart.updateOptions({
+              series: [{ data: prices }],
+              xaxis: { categories },
+            });
+          } else {
+            const incomeChartConfig = {
+              series: [{ data: prices }],
+              chart: {
+                type: 'line',
+                height: 350,
+              },
+              xaxis: {
+                categories,
+                labels: {
+                  style: {
+                    colors: '#9aa0ac',
+                  },
+                },
+              },
+            };
+            incomeChart = new ApexCharts(incomeChartEl, incomeChartConfig);
+            incomeChart.render();
+          }
+        }
+      
+        // Initialize the page
+        async function init() {
+          const stockData = await fetchStockData();
+          console.log(stockData);  // Add this line to inspect the structure of stockData
+        
+          if (stockData) {
+            updateDropdownMenu(stockData);
+        
+            // Set initial chart for the first available year's data
+            const initialYearKey = Object.keys(stockData).find((key) => key.includes('prices'));
+            if (initialYearKey) {
+              const initialYearData = stockData[initialYearKey];
+              const yearNumber = initialYearKey.split('_')[0];
+              dropdownButton.textContent = yearNumber;
+              updateChart(initialYearData, yearNumber);
+            }
+          }
+        }
+        
+      
+        init();
+      });
+    </script>
+
     <!-- Main JS -->
     <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
     
     <!-- Page JS -->
-    <script src="{{ url_for('static', filename='assets/js/dashboards-analytics.js') }}"></script>
-    
+    <!-- <script src="{{ url_for('static', filename='assets/js/dashboards-analytics.js') }}"></script> -->
+    <!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- Bootstrap JS (including Popper.js for dropdown functionality) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+
   </body>
 </html>

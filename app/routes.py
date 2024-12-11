@@ -1,7 +1,7 @@
 from flask import Flask, Blueprint, jsonify, render_template, Response, request
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from app.utils.scraper import get_stock_data as scraper_stock_data
+from app.utils.scraper import get_stock_data
 from app.models.lstm import predict_lstm
 from pydantic import BaseModel
 from app.utils.metrics import get_financial_metrics
@@ -12,6 +12,8 @@ from email.mime.text import MIMEText
 from dotenv import load_dotenv
 import os
 import logging
+from collections import defaultdict
+from datetime import datetime, timedelta
 
 # Configuration du logging pour capturer les erreurs
 logging.basicConfig(level=logging.ERROR)
@@ -35,6 +37,53 @@ required_env_vars = {"SMTP_SERVER", "SMTP_PORT", "SMTP_EMAIL", "SMTP_PASSWORD"}
 missing_vars = [var for var in required_env_vars if not os.getenv(var)]
 if missing_vars:
     raise ValueError(f"Les variables d'environnement suivantes sont manquantes : {', '.join(missing_vars)}")
+
+# ========================= HELPER FUNCTION =========================
+
+def format_prices_with_month(prices_data, year=None, start_date="2024-01-01"):
+    # Initialize a defaultdict to store prices by month
+    month_prices = defaultdict(list)
+
+    # Check if prices_data contains dictionaries with dates
+    if all(isinstance(price, dict) for price in prices_data):
+        # Group the prices by month
+        for price in prices_data:
+            date_str = price.get('date')  # Ensure 'date' exists
+            price_value = price.get('price')  # Ensure 'price' exists
+            if date_str and price_value:
+                # Extract month and year from the date string
+                date = datetime.strptime(date_str, "%Y-%m-%d")
+                if not year or date.year == int(year):  # Only include prices for the given year
+                    month_prices[date.month].append(price_value)
+            else:
+                logging.error(f"Format inattendu pour le prix : {price}")
+    elif all(isinstance(price, (int, float)) for price in prices_data):
+        logging.warning("Prices data does not contain dates, generating artificial dates.")
+        # Generate artificial dates starting from the specified start_date
+        current_date = datetime.strptime(start_date, "%Y-%m-%d")
+        for price in prices_data:
+            # Group prices by the month of the artificial date
+            month_prices[current_date.month].append(price)
+            # Increment the date by 1 day
+            current_date += timedelta(days=1)
+    else:
+        logging.error("Format des données de prix non reconnu.")
+        return []
+
+    # Generate the formatted data
+    formatted_data = []
+    for month in range(1, 13):  # Loop through months 1 to 12
+        if month_prices[month]:
+            month_price = month_prices[month][-1]  # Choose the last price of the month
+            month_name = datetime(year=int(year), month=month, day=1).strftime('%B')
+            formatted_data.append({
+                "année": year,
+                "date": f"{year}-{str(month).zfill(2)}-01",  # Use the first day of the month
+                "mois": month_name,
+                "prix": month_price
+            })
+
+    return formatted_data
 
 
 # ========================= ROUTES =========================
@@ -128,59 +177,70 @@ def home():
                                error="Impossible de récupérer les métriques.")
 
 
-
-
-
-# Route pour récupérer les données historiques d'une action
 @main.route('/stock-data', methods=['GET'])
 def stock_data():
     """
-    Récupère les données historiques pour AAPL.
-
-    Retourne:
-        JSON contenant les prix historiques.
+    Récupère les données historiques pour AAPL, y compris les prix des années précédentes (2021, 2022, 2023),
+    de l'année actuelle jusqu'à aujourd'hui, et les prix du jour actuel.
     """
     try:
         stock_symbol = "AAPL"
-        prices = scraper_stock_data(stock_symbol)
-        return jsonify({"stock_symbol": stock_symbol, "prices": prices}), 200
+        
+        # Date ranges for previous years (2021, 2022, 2023)
+        previous_years = [
+            {"start_date": "2021-01-01", "end_date": "2021-12-31"},
+            {"start_date": "2022-01-01", "end_date": "2022-12-31"},
+            {"start_date": "2023-01-01", "end_date": "2023-12-31"},
+        ]
+        
+        # Get prices for each previous year (2021, 2022, 2023)
+        previous_year_prices = {}
+        for year in previous_years:
+            try:
+                data = get_stock_data(stock_symbol, start_date=year["start_date"], end_date=year["end_date"], interval="1d")
+                # Ensure the data is in the expected format
+                if isinstance(data, dict) and "recent_prices" in data:
+                    year_label = year["start_date"][:4]  # Extract the year (e.g., "2021")
+                    previous_year_prices[year_label] = format_prices_with_month(data["recent_prices"], year=year_label)
+                else:
+                    raise ValueError(f"Data format unexpected for year {year['start_date'][:4]}")
+            except Exception as e:
+                logging.error(f"Erreur lors de la récupération des données pour {stock_symbol} pour l'année {year['start_date'][:4]}: {e}")
+                previous_year_prices[year["start_date"][:4]] = []  # Fallback to an empty list
+
+        # Get prices for the current year (2024) from Jan 1, 2024 to today
+        current_year_start = "2024-01-01"
+        current_year_end = datetime.now().strftime('%Y-%m-%d')
+        try:
+            current_year_prices_data = get_stock_data(stock_symbol, start_date=current_year_start, end_date=current_year_end, interval="1d")
+            # Handle the response correctly based on its format
+            if isinstance(current_year_prices_data, dict) and "recent_prices" in current_year_prices_data:
+                current_year_prices = format_prices_with_month(current_year_prices_data["recent_prices"], year="2024")
+            else:
+                raise ValueError("Unexpected data format for current year prices.")
+        except Exception as e:
+            logging.error(f"Erreur lors de la récupération des données pour l'année actuelle {current_year_start}: {e}")
+            current_year_prices_data = {"recent_prices": []}
+
+        # Get the price for today (using 'period' as '1d')
+        try:
+            today_price_data = get_stock_data(stock_symbol, period="1d", interval="1d")
+            today_price = today_price_data["recent_prices"][-1] if isinstance(today_price_data, dict) and "recent_prices" in today_price_data else None
+        except Exception as e:
+            logging.error(f"Erreur lors de la récupération du prix pour aujourd'hui: {e}")
+            today_price = None
+        
+        return jsonify({
+            "stock_symbol": stock_symbol,
+            "2021_prices": previous_year_prices.get("2021", []),
+            "2022_prices": previous_year_prices.get("2022", []),
+            "2023_prices": previous_year_prices.get("2023", []),
+            "2024_prices": current_year_prices,
+            "today_price": {
+                "date": datetime.now().strftime('%Y-%m-%d'),
+                "price": today_price
+            }
+        }), 200
     except Exception as e:
         logging.error(f"Erreur dans stock_data: {e}")
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
-
-
-# Route pour récupérer les données de plusieurs entreprises
-@main.route('/multi-stock-data', methods=['GET'])
-def multi_stock_data():
-    """
-    Récupère les données de clôture des actions de plusieurs entreprises.
-
-    Retourne:
-        JSON contenant les prix les plus récents.
-    """
-    try:
-        stock_symbols = ["AAPL", "MSFT", "GOOGL", "AMZN", "TSLA", "META", "NVDA"]
-        stock_data = {}
-
-        for symbol in stock_symbols:
-            stock = yf.Ticker(symbol)
-            historical_data = stock.history(period="1d")['Close']
-            if not historical_data.empty:
-                stock_data[symbol] = {
-                    "latest_close": round(historical_data.iloc[-1], 2),
-                    "name": stock.info.get("longName", "N/A")
-                }
-            else:
-                stock_data[symbol] = {"error": "Aucune donnée disponible"}
-
-        return jsonify(stock_data), 200
-    except Exception as e:
-        logging.error(f"Erreur dans multi_stock_data: {e}")
-        return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
-
-
-# Enregistrement du blueprint et lancement de l'application
-app.register_blueprint(main)
-
-if __name__ == "__main__":
-    app.run(debug=True)
