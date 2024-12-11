@@ -1,36 +1,37 @@
 import yfinance as yf
+from datetime import datetime, timedelta
 
-def get_stock_data(stock_symbol, period="3mo", interval="1d"):
+def get_stock_data(stock_symbol, period="5y", interval="1d", start_date=None, end_date=None):
     """
-    Récupère les données historiques d'un symbole boursier spécifique pour une période et un intervalle donnés.
+    Récupère les données historiques d'un symbole boursier pour la période spécifiée.
+    Si start_date et end_date sont fournis, ils seront utilisés pour récupérer les données spécifiques.
 
     Paramètres:
-        stock_symbol (str): Le symbole boursier (exemple : 'AAPL' pour Apple).
-        period (str): La période pour laquelle les données doivent être récupérées 
-                      (valeurs possibles : '1d', '5d', '1mo', '3mo', '6mo', '1y', '5y', 'max').
-                      Par défaut : '3mo'.
-        interval (str): L'intervalle de temps entre chaque point de donnée 
-                        (valeurs possibles : '1m', '2m', '5m', '15m', '1d', '1wk', '1mo').
-                        Par défaut : '1d'.
+        stock_symbol (str): Le symbole boursier (exemple : 'AAPL').
+        period (str): La période pour laquelle les données doivent être récupérées (ex. : '1d', '5y').
+        interval (str): L'intervalle de temps entre chaque point de donnée (ex. : '1d', '1mo').
+        start_date (str): La date de début (format : 'YYYY-MM-DD') si spécifique.
+        end_date (str): La date de fin (format : 'YYYY-MM-DD') si spécifique.
 
     Retourne:
-        list: Une liste des prix de clôture pour la période et l'intervalle spécifiés.
+        dict: Données boursières pour la période donnée.
     """
     try:
-        # Initialisation de l'objet Ticker pour le symbole boursier donné
         stock = yf.Ticker(stock_symbol)
-        
-        # Récupération des données historiques pour la période et l'intervalle spécifiés
-        historical_data = stock.history(period=period, interval=interval)
-        
-        # Vérifie si des données ont été récupérées
+
+        # Si start_date et end_date sont fournis, on les utilise, sinon on se base sur 'period'
+        if start_date and end_date:
+            historical_data = stock.history(start=start_date, end=end_date, interval=interval)
+        else:
+            historical_data = stock.history(period=period, interval=interval)
+
         if historical_data.empty:
-            raise ValueError(f"Aucune donnée disponible pour le symbole '{stock_symbol}' avec la période '{period}' et l'intervalle '{interval}'.")
-        
-        # Extraction des prix de clôture dans une liste
-        prices = historical_data['Close'].tolist()
-        
-        return prices
+            raise ValueError(f"Aucune donnée disponible pour {stock_symbol}.")
+
+        # Extraction des prix de clôture
+        return {
+            "recent_prices": historical_data['Close'].tolist(),
+        }
+
     except Exception as e:
-        # Gestion des erreurs, renvoie un message détaillé
-        raise RuntimeError(f"Erreur lors de la récupération des données pour '{stock_symbol}': {str(e)}")
+        raise RuntimeError(f"Erreur lors de la récupération des données pour {stock_symbol}: {str(e)}")
