@@ -140,145 +140,190 @@
 
           <!-- / Navbar -->
 
-          <div class="row">
-            <!-- PE Ratio -->
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <img
-                                    src="{{ url_for('static', filename='assets/img/icons/unicons/chart-success.png') }}"
-                                    alt="PE Ratio"
-                                    class="rounded"
-                                />
-                            </div>
-                            <button 
-                                type="button" 
-                                class="btn btn-sm btn-outline-info" 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="top" 
-                                title="Le ratio cours/bénéfice mesure la valorisation relative d'une entreprise par rapport à ses bénéfices."
-                            >
-                                ?
-                            </button>
-                        </div>
-                        <span class="fw-semibold d-block mb-1">Ratio Cours/Bénéfice</span>
-                        <h3 class="card-title mb-2">
-                            {{ '{:,.2f}'.format(previous_day_metrics.pe_ratio) if previous_day_metrics.pe_ratio else 'N/A' }}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- Dividend Yield -->
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <img
-                                    src="{{ url_for('static', filename='assets/img/icons/unicons/wallet-info.png') }}"
-                                    alt="Dividend Yield"
-                                    class="rounded"
-                                />
-                            </div>
-                            <button 
-                                type="button" 
-                                class="btn btn-sm btn-outline-info" 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="top" 
-                                title="Le rendement dividende montre combien une entreprise verse de dividendes par rapport à son cours actuel."
-                            >
-                                ?
-                            </button>
-                        </div>
-                        <span class="fw-semibold d-block mb-1">Rendement dividende</span>
-                        <h3 class="card-title mb-2">
-                            {% if previous_day_metrics.dividend_yield %}
-                                {{ '{:,.2f}'.format(previous_day_metrics.dividend_yield * 100) }}%
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- Beta -->
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <img
-                                    src="{{ url_for('static', filename='assets/img/icons/unicons/stats.png') }}"
-                                    alt="Beta"
-                                    class="rounded"
-                                />
-                            </div>
-                            <button 
-                                type="button" 
-                                class="btn btn-sm btn-outline-info" 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="top" 
-                                title="Le beta mesure la volatilité d'une action par rapport au marché global."
-                            >
-                                ?
-                            </button>
-                        </div>
-                        <span class="fw-semibold d-block mb-1">Beta</span>
-                        <h3 class="card-title mb-2">
-                            {{ '{:,.2f}'.format(previous_day_metrics.beta) if previous_day_metrics.beta else 'N/A' }}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-        
-            <!-- Market Cap -->
-            <div class="col-lg-3 col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="card-title d-flex align-items-start justify-content-between">
-                            <div class="avatar flex-shrink-0">
-                                <img
-                                    src="{{ url_for('static', filename='assets/img/icons/unicons/cc-primary.png') }}"
-                                    alt="Market Cap"
-                                    class="rounded"
-                                />
-                            </div>
-                            <button 
-                                type="button" 
-                                class="btn btn-sm btn-outline-info" 
-                                data-bs-toggle="tooltip" 
-                                data-bs-placement="top" 
-                                title="La capitalisation boursière est la valeur totale des actions d'une entreprise."
-                            >
-                                ?
-                            </button>
-                        </div>
-                        <span class="fw-semibold d-block mb-1">Capitalisation Boursière</span>
-                        <h3 class="card-title mb-2">
-                            {% if previous_day_metrics.market_cap %}
-                                {% set market_cap = previous_day_metrics.market_cap %}
-                                {% if market_cap >= 1_000_000_000 %}
-                                    {{ '{:,.2f}'.format(market_cap / 1_000_000_000) }} B
-                                {% elif market_cap >= 1_000_000 %}
-                                    {{ '{:,.2f}'.format(market_cap / 1_000_000) }} M
-                                {% elif market_cap >= 1_000 %}
-                                    {{ '{:,.2f}'.format(market_cap / 1_000) }} K
-                                {% else %}
-                                    {{ '{:,.2f}'.format(market_cap) }}
-                                {% endif %}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+              <div class="row">
+                  <div class="col-lg-12 mb-4">
+                      <div class="row">
+                          <!-- PE Ratio -->
+                          <div class="col-lg-3 col-md-6 mb-4">
+                              <div class="card">
+                                  <div class="card-body">
+                                      <div class="card-title d-flex align-items-start justify-content-between">
+                                          <div class="avatar flex-shrink-0">
+                                              <img
+                                                  src="{{ url_for('static', filename='assets/img/icons/unicons/chart-success.png') }}"
+                                                  alt="PE Ratio"
+                                                  class="rounded"
+                                              />
+                                          </div>
+                                          <button 
+                                          type="button" 
+                                          class="btn btn-sm btn-outline-info" 
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top" 
+                                          title="La capitalisation boursière est la valeur totale des actions d'une entreprise."
+                                      >
+                                          ?
+                                      </button> 
+                                      </div>
+                                      <span class="fw-semibold d-block mb-1">Ratio Cours/Bénéfice</span>
+                                      <h3 class="card-title mb-2">
+                                          {{ '{:,.2f}'.format(previous_day_metrics.pe_ratio) if previous_day_metrics.pe_ratio else 'N/A' }}
+                                      </h3>
+                                      {% if previous_day_metrics.pe_ratio %}
+                                          {% if previous_day_metrics.pe_ratio > previous_day_metrics.pe_ratio %}
+                                              <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +{{ '{:,.2f}'.format(previous_day_metrics.pe_ratio - previous_day_metrics.pe_ratio) }}</small>
+                                          {% elif previous_day_metrics.pe_ratio < previous_day_metrics.pe_ratio %}
+                                              <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i> -{{ '{:,.2f}'.format(previous_day_metrics.pe_ratio - previous_day_metrics.pe_ratio) }}</small>
+                                          {% else %}
+                                              <small class="text-warning fw-semibold"><i class="bx bx-right-arrow-alt"></i> Pas de changement</small>
+                                          {% endif %}
+                                      {% endif %}
+                                  </div>
+                              </div>
+                          </div>
+          
+                          <!-- Dividend Yield -->
+                          <div class="col-lg-3 col-md-6 mb-4">
+                              <div class="card">
+                                  <div class="card-body">
+                                      <div class="card-title d-flex align-items-start justify-content-between">
+                                          <div class="avatar flex-shrink-0">
+                                              <img
+                                                  src="{{ url_for('static', filename='assets/img/icons/unicons/wallet-info.png') }}"
+                                                  alt="Dividend Yield"
+                                                  class="rounded"
+                                              />
+                                          </div>
+                                          <button 
+                                            type="button" 
+                                            class="btn btn-sm btn-outline-info" 
+                                            data-bs-toggle="tooltip" 
+                                            data-bs-placement="top" 
+                                            title="Le rendement dividende montre combien une entreprise verse de dividendes par rapport à son cours actuel."
+                                        >
+                                            ?
+                                        </button>
+                                          
+                                      </div>
+                                      <span class="fw-semibold d-block mb-1">Rendement dividende</span>
+                                      <h3 class="card-title mb-2">
+                                          {% if previous_day_metrics.dividend_yield %}
+                                              {{ '{:,.2f}'.format(previous_day_metrics.dividend_yield * 100) }}%
+                                          {% else %}
+                                              N/A
+                                          {% endif %}
+                                      </h3>
+                                      
+                                      {% if previous_day_metrics.dividend_yield %}
+                                          {% if previous_day_metrics.dividend_yield > previous_day_metrics.dividend_yield %}
+                                              <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +{{ '{:,.2f}'.format(previous_day_metrics.dividend_yield - previous_day_metrics.dividend_yield) }}%</small>
+                                          {% elif previous_day_metrics.dividend_yield < previous_day_metrics.dividend_yield %}
+                                              <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i> -{{ '{:,.2f}'.format(previous_day_metrics.dividend_yield - previous_day_metrics.dividend_yield) }}%</small>
+                                          {% else %}
+                                              <small class="text-warning fw-semibold"><i class="bx bx-right-arrow-alt"></i> Pas de changement</small>
+                                          {% endif %}
+                                      {% endif %}
+                                  </div>
+                              </div>
+                          </div>
+          
+                          <!-- Beta -->
+                          <div class="col-lg-3 col-md-6 mb-4">
+                              <div class="card">
+                                  <div class="card-body">
+                                      <div class="card-title d-flex align-items-start justify-content-between">
+                                          <div class="avatar flex-shrink-0">
+                                              <img
+                                                  src="{{ url_for('static', filename='assets/img/icons/unicons/stats.png') }}"
+                                                  alt="Beta"
+                                                  class="rounded"
+                                              />
+                                          </div>
+                                          <button 
+                                          type="button" 
+                                          class="btn btn-sm btn-outline-info" 
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top" 
+                                          title="Le beta mesure la volatilité d'une action par rapport au marché global."
+                                      >
+                                          ?
+                                      </button>
+                                      </div>
+                                      <span class="fw-semibold d-block mb-1">Beta</span>
+                                      <h3 class="card-title mb-2">
+                                          {{ '{:,.2f}'.format(previous_day_metrics.beta) if previous_day_metrics.beta else 'N/A' }}
+                                      </h3>
+                                      {% if previous_day_metrics.beta %}
+                                          {% if previous_day_metrics.beta > previous_day_metrics.beta %}
+                                              <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +{{ '{:,.2f}'.format(previous_day_metrics.beta - previous_day_metrics.beta) }}</small>
+                                          {% elif previous_day_metrics.beta < previous_day_metrics.beta %}
+                                              <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i> -{{ '{:,.2f}'.format(previous_day_metrics.beta - previous_day_metrics.beta) }}</small>
+                                          {% else %}
+                                              <small class="text-warning fw-semibold"><i class="bx bx-right-arrow-alt"></i> Pas de changement</small>
+                                          {% endif %}
+                                      {% endif %}
+                                  </div>
+                              </div>
+                          </div>
+          
+                          <!-- Market Cap -->
+                          <div class="col-lg-3 col-md-6 mb-4">
+                              <div class="card">
+                                  <div class="card-body">
+                                      <div class="card-title d-flex align-items-start justify-content-between">
+                                          <div class="avatar flex-shrink-0">
+                                              <img
+                                                  src="{{ url_for('static', filename='assets/img/icons/unicons/cc-primary.png') }}"
+                                                  alt="Market Cap"
+                                                  class="rounded"
+                                              />
+                                          </div>
+                                          <button 
+                                          type="button" 
+                                          class="btn btn-sm btn-outline-info" 
+                                          data-bs-toggle="tooltip" 
+                                          data-bs-placement="top" 
+                                          title="La capitalisation boursière est la valeur totale des actions d'une entreprise."
+                                      >
+                                          ?
+                                      </button>
+                                      </div>
+                                      <span class="fw-semibold d-block mb-1">Capitalisation Boursière</span>
+<h3 class="card-title mb-2">
+    {% if previous_day_metrics.market_cap %}
+        {% set market_cap = previous_day_metrics.market_cap %}
+        {% if market_cap >= 1_000_000_000 %}
+            {{ '{:,.2f}'.format(market_cap / 1_000_000_000) }} B
+        {% elif market_cap >= 1_000_000 %}
+            {{ '{:,.2f}'.format(market_cap / 1_000_000) }} M
+        {% elif market_cap >= 1_000 %}
+            {{ '{:,.2f}'.format(market_cap / 1_000) }} K
+        {% else %}
+            {{ '{:,.2f}'.format(market_cap) }}
+        {% endif %}
+    {% else %}
+        N/A
+    {% endif %}
+</h3>
+
+                                      {% if previous_day_metrics.market_cap %}
+                                          {% if previous_day_metrics.market_cap > previous_day_metrics.market_cap %}
+                                              <small class="text-success fw-semibold"><i class="bx bx-up-arrow-alt"></i> +{{ '{:,.2f}'.format(previous_day_metrics.market_cap - previous_day_metrics.market_cap) }}</small>
+                                          {% elif previous_day_metrics.market_cap < previous_day_metrics.market_cap %}
+                                              <small class="text-danger fw-semibold"><i class="bx bx-down-arrow-alt"></i> -{{ '{:,.2f}'.format(previous_day_metrics.market_cap - previous_day_metrics.market_cap) }}</small>
+                                          {% else %}
+                                              <small class="text-warning fw-semibold"><i class="bx bx-right-arrow-alt"></i> Pas de changement</small>
+                                          {% endif %}
+                                      {% endif %}
+                                  </div>
+                              </div>      
+                          </div>
+                      </div>
+              <!-- Expense Overview -->
 <!-- Expense Overview -->
 <div class="row">
   <!-- First Card -->
