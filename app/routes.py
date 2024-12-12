@@ -245,7 +245,23 @@ def stock_data():
         logging.error(f"Erreur dans stock_data: {e}")
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
 
-
-@main.route('/prediction', endpoint='prediction')
+@app.route('/prediction')
 def machine_learning():
-    return render_template('prediction.html')
+    # Génération automatique des dates pour les 5 prochains jours
+    today = datetime.now()
+    predictions = []
+    
+    for i in range(5):
+        date = (today + timedelta(days=i)).strftime('%Y-%m-%d')
+        predictions.append({
+            "date": date,
+            "open": round(170 + i + (i * 0.1), 2),  # Simulation des données
+            "high": round(175 + i + (i * 0.15), 2),
+            "low": round(165 + i - (i * 0.1), 2),
+            "predicted_close": round(172 + i + (i * 0.2), 2)
+        })
+
+    return render_template('prediction.html', predictions=predictions)
+
+
+
