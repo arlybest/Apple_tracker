@@ -246,7 +246,7 @@ def stock_data():
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
 
 
-@main.route('/prediction', methods=['POST'])
+@app.route('/prediction', methods=['POST'])
 def prediction():
     """
     Route pour prédire les prix des actions pour les 5 jours à venir.
@@ -290,3 +290,6 @@ def prediction():
     except Exception as e:
         logging.error(f"Erreur lors de la prédiction des prix : {e}")
         return jsonify({"error": "Erreur lors de la prédiction des prix."}), 500
+
+
+
