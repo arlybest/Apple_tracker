@@ -1,51 +1,47 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
   <title>Apple Tracker - Tableau de bord analytique</title>
-  <meta name="description" content="Tableau de bord d'analyse pour le suivi des performances Apple." />
+  <meta name="description" content="Tableau de bord d'analyse pour le suivi des performances Apple.">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="../assets/img/favicon/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/img/favicon/favicon.ico') }}">
 
   <!-- Polices -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
-  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <!-- Icônes -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.0/lottie.min.js"></script>
-  <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-  
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}">
+
   <!-- Styles CSS principaux -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}" class="template-customizer-core-css" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}" class="template-customizer-core-css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}">
 
   <!-- CSS des bibliothèques tierces -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apex-charts.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apex-charts.css') }}">
 
-  <!-- Scripts JS auxiliaires -->
+  <!-- Scripts auxiliaires -->
   <script src="{{ url_for('static', filename='assets/vendor/js/helpers.js') }}"></script>
-
-  <!-- Configuration du thème -->
   <script src="{{ url_for('static', filename='assets/js/config.js') }}"></script>
 </head>
 
 <body>
-  <!-- Conteneur de la mise en page -->
+  <!-- Conteneur principal -->
   <div class="layout-wrapper layout-content-navbar">
     <div class="layout-container">
-
       <!-- Barre latérale -->
       <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
         <div class="app-brand demo">
           <a href="{{ url_for('main.home') }}" class="app-brand-link">
             <span class="app-brand-logo demo">
-              <!-- Logo en SVG -->
+              <!-- Exemple de logo SVG -->
               <svg width="25" viewBox="0 0 25 42" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fill-rule="evenodd">
                   <path d="M13.79,0.36 L3.4,7.44 C0.57,9.69 -0.38,12.48 0.56,15.8 C0.69,16.23 1.1,17.79 3.12,19.23 C3.81,19.72 5.32,20.38 7.65,21.22 L2.63,24.55 C0.45,26.3 0.09,28.51 1.56,31.17 C2.84,32.82 5.21,33.26 7.09,32.54 C8.35,32.06 11.46,30 16.42,26.37 C18.03,24.5 18.7,22.45 18.41,20.24 C17.96,17.53 16.18,15.58 13.05,14.37 L10.92,13.47 L18.62,7.98 Z" fill="#696cff"></path>
@@ -53,25 +49,20 @@
                 </g>
               </svg>
             </span>
-            <span class="app-brand-text demo menu-text fw-bolder ">Apple Tracker</span>
-          </a>
-          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
-            <i class="bx bx-chevron-left bx-sm align-middle"></i>
+            <span class="app-brand-text demo menu-text fw-bolder">Apple Tracker</span>
           </a>
         </div>
-
-        <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
-          <li class="menu-item ">
+          <li class="menu-item">
             <a href="{{ url_for('main.home') }}" class="menu-link">
               <i class="menu-icon tf-icons bx bx-home-circle"></i>
-              <div data-i18n="Analytics">Tableau de bord</div>
+              <div>Tableau de bord</div>
             </a>
           </li>
           <li class="menu-item active">
             <a href="{{ url_for('main.prediction') }}" class="menu-link">
               <i class="menu-icon tf-icons bx bx-brain"></i>
-              <div data-i18n="Machine Learning">Machine Learning</div>
+              <div>Machine Learning</div>
             </a>
           </li>
         </ul>
@@ -79,50 +70,289 @@
 
       <!-- Contenu principal -->
       <div class="layout-page">
-        <div class="content-wrapper">
-          <div class="container py-4">
-            <h2 class="mb-4">Prédiction du cours de l'action Apple</h2>
-            <p>Grâce à l'intelligence artificielle basée sur les réseaux LSTM (Long Short-Term Memory), nous vous proposons une analyse avancée pour prédire les tendances du cours de l'action Apple. Notre modèle utilise les données passées pour fournir une estimation des prix pour les 5 prochains jours.</p>
-            
-            <div class="text-center my-4">
-              <button id="predict-button" class="btn btn-primary d-flex align-items-center justify-content-center">
-                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_wlklw44p.json" background="transparent" speed="1" style="width: 40px; height: 40px;" loop autoplay></lottie-player>
-                <span class="ms-2">Lancer la prédiction</span>
-              </button>
-            </div>
+        <!-- Barre de navigation -->
+        <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+              <i class="bx bx-menu bx-sm"></i>
+            </a>
+          </div>
 
-            <div id="prediction-results" style="display: none;">
-              <h4>Prédictions pour les 5 prochains jours :</h4>
-              <ul id="prediction-list"></ul>
+          <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+            <!-- Barre de recherche -->
+            <div class="navbar-nav align-items-center">
+              <div class="nav-item d-flex align-items-center">
+                <i class="bx bx-search fs-4 lh-0"></i>
+                <input type="text" class="form-control border-0 shadow-none" placeholder="Recherche..." aria-label="Recherche..." />
+              </div>
+            </div>
+            <!-- Profil utilisateur -->
+            <ul class="navbar-nav flex-row align-items-center ms-auto">
+              <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                  <div class="avatar avatar-online">
+                    <img src="{{ url_for('static', filename='assets/img/avatars/2.jpg') }}" alt class="w-px-40 h-auto rounded-circle" />
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      <div class="d-flex">
+                        <div class="flex-shrink-0 me-3">
+                          <div class="avatar avatar-online">
+                            <img src="{{ url_for('static', filename='assets/img/avatars/2.jpg') }}" alt class="w-px-40 h-auto rounded-circle" />
+                          </div>
+                        </div>
+                        <div class="flex-grow-1">
+                          <span class="fw-semibold d-block">Ronic</span>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      <i class="bx bx-user me-2"></i>
+                      <span class="align-middle">Mon profil</span>
+                    </a>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="auth-login-basic.html">
+                      <i class="bx bx-power-off me-2"></i>
+                      <span class="align-middle">Se déconnecter</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            </div>
+          </nav>
+
+
+        <!-- Contenu -->
+        <div class="content-wrapper">
+          <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Apple Tracker /</span> Prediction</h4>
+
+            <!-- Collapse -->
+            <div class="row">
+              <div class="col-12">
+                <div class="card mb-4">
+                  <div class="card-body">
+                    <p class="card-text">
+                      Prédire le cours de l'action Apple :
+                    </p>
+                    <p class="demo-inline-spacing">
+                      <button id="predict-btn" type="button" class="btn btn-primary me-1">
+                        <span class="f-icons bx bx-line-chart"></span>&nbsp; Prédire
+                      </button>                      
+                      <button
+                        class="btn btn-primary me-1"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#collapseExample"
+                        aria-expanded="false"
+                        aria-controls="collapseExample"
+                      >
+                      <span class="tf-icons bx bx-info-circle"></span>&nbsp; Plus d'infos
+                    </button>
+                    </p>
+                    <div class="collapse" id="collapseExample">
+                      <div class="d-grid d-sm-flex p-3 border">
+                        <img
+                        src="{{ url_for('static', filename='assets/img/elements/AI.jpg') }}"
+                        alt="collapse-image"
+                          height="125"
+                          class="me-4 mb-sm-0 mb-2"
+                        />
+                        <span>
+                          Cette partie du projet vise à prédire le cours de l'action d'Apple en utilisant des réseaux de neurones à mémoire à long terme (LSTM). Ce type de modèle est particulièrement bien adapté aux séries temporelles, car il peut capturer les dépendances à long terme dans les données. Le projet utilise les données historiques des prix d'Apple pour entraîner le modèle, en intégrant des paramètres tels que les cours d'ouverture, de clôture, les volumes échangés, et d'autres indicateurs techniques. L'objectif principal est de fournir des prédictions fiables qui peuvent aider à identifier les tendances futures du marché.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title">Graphique des prédictions</h5>
+                 <canvas id="prediction-chart" style="max-height: 400px;"></canvas>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <!-- / Contenu -->
       </div>
     </div>
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
   </div>
 
-  <!-- Scripts -->
+  <!-- Scripts JS -->
+  <script src="{{ url_for('static', filename='assets/vendor/libs/jquery/jquery.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/libs/popper/popper.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/js/bootstrap.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/js/menu.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    document.getElementById("predict-button").addEventListener("click", function() {
-      fetch('/prediction')
-        .then(response => response.json())
-        .then(data => {
-          let predictions = data.predictions;
-          let predictionList = document.getElementById("prediction-list");
-          predictionList.innerHTML = '';
-
-          predictions.forEach(prediction => {
-            let listItem = document.createElement("li");
-            listItem.textContent = `${prediction.date}: Open - ${prediction.open}, High - ${prediction.high}, Low - ${prediction.low}, Predicted Close - ${prediction.predicted_close}`;
-            predictionList.appendChild(listItem);
-          });
-
-          document.getElementById("prediction-results").style.display = "block";
-        })
-        .catch(error => {
-          console.error("Erreur lors de la récupération des prédictions : ", error);
-        });
+    const predictBtn = document.getElementById('predict-btn');
+    const spinnerHTML = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Chargement...`;
+  
+    // Event listener for button click
+    predictBtn.addEventListener('click', function () {
+      // Change button text to spinner
+      predictBtn.innerHTML = spinnerHTML;
+      predictBtn.disabled = true; // Disable button to prevent multiple clicks
+  
+      // Fetch prediction data from the Flask /predict route (POST request)
+      fetch('/prediction', {
+        method: 'POST', // Send POST request for predictions
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json()) // Parse JSON response
+      .then(data => {
+        // Handle the prediction data (populate the chart)
+        createPredictionChart(data);
+  
+        // Reset the button after the chart is created
+        predictBtn.innerHTML = 'Prédire';
+        predictBtn.disabled = false;
+      })
+      .catch(error => {
+        console.error('Erreur lors de la prédiction :', error);
+        // Handle error
+        predictBtn.innerHTML = 'Prédire';
+        predictBtn.disabled = false;
+      });
     });
+  
+    // Function to create the prediction chart
+    function createPredictionChart(data) {
+      const ctx = document.getElementById('prediction-chart').getContext('2d');
+      const labels = data.dates;  // Extract dates
+      const prices = data.predictions;  // Extract predicted prices
+  
+      if (window.predictionChart) window.predictionChart.destroy(); // Destroy any existing chart
+  
+      window.predictionChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Prix prédit (en $)',
+            data: prices,
+            borderColor: '#696CFF', // Using the #696CFF color for the line
+            backgroundColor: 'rgba(105, 108, 255, 0.2)', // Light purple fill under the line
+            pointBackgroundColor: '#696CFF', // Point color matches line
+            pointBorderColor: '#fff', // White border for points
+            pointRadius: 6, // Larger points for better visibility
+            borderWidth: 3,
+            tension: 0.3, // Smooth the line
+            fill: true, // Enable area fill under the line
+            pointHoverRadius: 8, // Larger point when hovered
+            pointHoverBackgroundColor: '#fff', // White hover point background
+            pointHoverBorderColor: '#696CFF', // Hover border color
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false, // Let chart resize based on container
+          animation: {
+            duration: 1000, // Smooth animation when the chart is drawn
+            easing: 'easeOutBounce', // Bounce effect for the animation
+          },
+          scales: {
+            x: {
+              grid: {
+                color: 'rgba(200, 200, 200, 0.4)', // Light gridlines
+                lineWidth: 0.5, // Thinner gridlines for cleaner look
+              },
+              ticks: {
+                font: {
+                  size: 12, // Smaller x-axis labels
+                  family: 'Arial, sans-serif',
+                  weight: 'bold',
+                  color: '#333',
+                },
+              },
+            },
+            y: {
+              grid: {
+                color: 'rgba(200, 200, 200, 0.4)', // Light gridlines for y-axis
+                lineWidth: 0.5,
+              },
+              ticks: {
+                font: {
+                  size: 12, // Smaller y-axis labels
+                  family: 'Arial, sans-serif',
+                  weight: 'bold',
+                  color: '#333',
+                },
+                beginAtZero: true, // Start y-axis at zero
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                font: {
+                  family: 'Arial, sans-serif',
+                  size: 14,
+                  weight: 'bold',
+                  color: '#333',
+                }
+              }
+            },
+            title: {
+              display: true,
+              text: 'Prédictions pour les 5 prochains jours',
+              font: {
+                family: 'Arial, sans-serif',
+                size: 16,
+                weight: 'bold',
+                color: '#333'
+              }
+            },
+            tooltip: {
+              callbacks: {
+                label: function (tooltipItem) {
+                  return `Prix prédit: $${tooltipItem.raw.toFixed(2)}`;
+                }
+              },
+              backgroundColor: 'rgba(0,0,0,0.7)', // Dark background for tooltips
+              titleColor: '#fff', // White title
+              bodyColor: '#fff', // White body text
+              cornerRadius: 4, // Rounded corners for the tooltip
+              displayColors: false, // Don't show color box in the tooltip
+            }
+          },
+          interaction: {
+            mode: 'nearest', // Hover effect at nearest point
+            intersect: false, // Allow hover even if cursor is not directly on a point
+          },
+        }
+      });
+    }
   </script>
+  
+  
+  
+  
+  
 </body>
 </html>
