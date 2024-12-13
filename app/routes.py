@@ -245,23 +245,48 @@ def stock_data():
         logging.error(f"Erreur dans stock_data: {e}")
         return jsonify({"error": "Impossible de récupérer les données boursières"}), 500
 
-@main.route('/prediction')
+
+@main.route('/prediction', methods=['POST'])
 def prediction():
-    # Génération automatique des dates pour les 5 prochains jours
-    today = datetime.now()
-    predictions = []
-    
-    for i in range(5):
-        date = (today + timedelta(days=i)).strftime('%Y-%m-%d')
-        predictions.append({
-            "date": date,
-            "open": round(170 + i + (i * 0.1), 2),  # Simulation des données
-            "high": round(175 + i + (i * 0.15), 2),
-            "low": round(165 + i - (i * 0.1), 2),
-            "predicted_close": round(172 + i + (i * 0.2), 2)
-        })
+    """
+    Route pour prédire les prix des actions pour les 5 jours à venir.
+    """
+    try:
+        # Récupérer le symbole boursier depuis le corps de la requête
+        data = request.json
+        stock_symbol = data.get('stock_symbol')
+        if not stock_symbol:
+            return jsonify({"error": "Le symbole boursier est requis."}), 400
 
-    return render_template('prediction.html', predictions=predictions)
+        # Obtenir le prix actuel pour aujourd'hui
+        today_price_data = get_stock_data(stock_symbol, period="1d", interval="1d")
+        today_price = today_price_data["recent_prices"][-1] if isinstance(today_price_data, dict) and "recent_prices" in today_price_data else None
 
+        if not today_price:
+            return jsonify({"error": "Impossible de récupérer le prix actuel pour l'action."}), 500
 
+        # Simuler une prédiction pour les 5 jours suivants (vous devez remplacer cette logique par votre modèle)
+        predictions = []
+        current_date = datetime.now()
+        for i in range(1, 6):  # Les 5 jours suivants
+            next_date = current_date + timedelta(days=i)
+            # Exemple de prédiction fictive, à remplacer par une prédiction réelle basée sur votre modèle
+            predicted_price = today_price + (i * 2.5)  # Logique fictive
+            predictions.append({
+                "date": next_date.strftime('%Y-%m-%d'),
+                "predicted_price": round(predicted_price, 2)
+            })
 
+        # Retourner la réponse JSON avec les prédictions
+        return jsonify({
+            "stock_symbol": stock_symbol,
+            "today_price": {
+                "date": current_date.strftime('%Y-%m-%d'),
+                "price": today_price
+            },
+            "predictions": predictions
+        }), 200
+
+    except Exception as e:
+        logging.error(f"Erreur lors de la prédiction des prix : {e}")
+        return jsonify({"error": "Erreur lors de la prédiction des prix."}), 500
