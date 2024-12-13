@@ -14,6 +14,8 @@ import os
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
+from datetime import datetime
+
 
 # ========================= CONFIGURATION =========================
 
@@ -41,6 +43,17 @@ if missing_vars:
     raise ValueError(f"Les variables d'environnement suivantes sont manquantes : {', '.join(missing_vars)}")
 
 # ========================= FONCTIONS UTILES =========================
+# Décorateur pour enregistrer le filtre `datetimeformat` sur l'application Flask
+# Enregistrement d'un filtre Jinja pour formater les timestamps
+def datetimeformat(value):
+    """
+    Formate un timestamp UNIX en chaîne de date lisible.
+    """
+    return datetime.utcfromtimestamp(value).strftime('%Y-%m-%d %H:%M:%S')
+
+# Enregistrement du filtre `datetimeformat` dans l'application Flask
+app.jinja_env.filters['datetimeformat'] = datetimeformat
+
 
 def format_prices_with_month(prices_data, year=None, start_date="2024-01-01"):
     """
@@ -234,22 +247,77 @@ def stock_data():
 
 @main.route('/prediction', methods=['GET', 'POST'])
 def prediction():
+    # Cette route gère à la fois les requêtes GET et POST pour la fonctionnalité de prédiction.
+
     if request.method == "GET":
-        # Render the prediction page
+        # Si la méthode de la requête est GET, on rend la page HTML de prédiction.
         return render_template("prediction.html")
     
     elif request.method == "POST":
-        # Perform your prediction logic
-        prediction = predict_lstm()  # This is your function to generate predictions
+        # Si la méthode de la requête est POST, on exécute la logique de prédiction.
 
-        # Structure the prediction result
+        # Appel de la fonction `predict_lstm` pour générer les prédictions (fonction définie ailleurs).
+        prediction = predict_lstm()  
+
+        # Structure des données de réponse, incluant :
+        # - Les dates des prédictions (ex. : ["2024-12-14", "2024-12-15", ...]).
+        # - Les valeurs prédites (ex. : [248.85, 250.44, ...]).
         response_data = {
-            "dates": prediction["dates"],  # e.g., ["2024-12-14", "2024-12-15", ...]
-            "predictions": prediction["predictions"],  # e.g., [248.85, 250.44, ...]
+            "dates": prediction["dates"],  
+            "predictions": prediction["predictions"],  
         }
-        return jsonify(response_data)  # Return the prediction as JSON
+        # Retourne les résultats sous forme de réponse JSON, utile pour les appels API ou AJAX.
+        return jsonify(response_data)  
+
+@main.route('/investisseur', methods=['GET'])
+def investisseur():
+    """
+    Cette route gère l'affichage d'une page dédiée aux investisseurs.
+    Elle récupère les données des actions de grandes entreprises technologiques,
+    telles que leur prix actuel et leurs dernières actualités.
+    """
+
+    # Liste des symboles boursiers des entreprises à analyser
+    companies = ["AAPL", "GOOGL", "MSFT", "TSLA", "AMZN", "NFLX", "META", "NVDA"]
+
+    # Liste pour stocker les informations des entreprises
+    data = []
+
+    # Boucle sur chaque entreprise de la liste
+    for company in companies:
+        try:
+            # Initialisation d'un objet `Ticker` pour récupérer les données de l'entreprise
+            stock = yf.Ticker(company)
+            
+            # Récupère les 5 dernières actualités uniquement pour Apple
+            if company == "AAPL":
+                news = stock.news[:5] if stock.news else []  # Dernières actualités (max 5 articles)
+            else:
+                news = []  # Pas d'actualités pour les autres entreprises
+
+            # Structure des informations à inclure :
+            # - Le symbole boursier (ex. : "AAPL")
+            # - Le dernier prix de clôture de l'action
+            # - Les dernières actualités pour Apple uniquement
+            info = {
+                "symbol": company,
+                "price": stock.history(period="1d")['Close'].iloc[-1],  # Dernier prix de clôture
+                "news": news  # Dernières actualités pour Apple ou vide pour les autres entreprises
+            }
+            
+            # Ajout des informations de l'entreprise à la liste principale
+            data.append(info)
+        
+        # Gestion des exceptions (si une erreur survient, elle est affichée dans la console)
+        except Exception as e:
+            print(f"Erreur lors de la récupération des données pour {company} : {e}")
+
+    # Rendu de la page HTML `financial_corner.html`, en passant les données récupérées
+    return render_template('financial_corner.html', data=data)
 
 
-
-
-
+@main.get("/news")
+def get_news():
+    stock = yf.Ticker("AAPL")
+    news_data = stock.news  
+    return {"news": news_data}
