@@ -2,7 +2,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-from app.utils.scraper import get_stock_data
+from app.utils.scraper2 import get_stock_data
 from datetime import datetime, timedelta
 
 def get_next_prediction_dates(num_days=5):
