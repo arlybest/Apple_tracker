@@ -62,48 +62,40 @@
 
         <div class="menu-inner-shadow"></div>
         <ul class="menu-inner py-1">
-          <!-- Lien vers le tableau de bord -->
           <li class="menu-item ">
-              <a href="{{ url_for('main.home') }}" class="menu-link">
-                  <i class="menu-icon tf-icons bx bx-home-circle"></i>
-                  <div data-i18n="Analytics">Tableau de bord</div>
-              </a>
+            <a href="{{ url_for('main.home') }}" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-home-circle"></i>
+              <div data-i18n="Analytics">Tableau de bord</div>
+            </a>
           </li>
-      
-          <!-- Lien vers la page Machine Learning -->
           <li class="menu-item active">
-              <a href="{{ url_for('main.prediction') }}" class="menu-link">
-                  <i class="menu-icon tf-icons bx bx-brain"></i>
-                  <div data-i18n="Machine Learning">Machine Learning</div>
-              </a>
+            <a href="{{ url_for('main.prediction') }}" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-brain"></i>
+              <div data-i18n="Machine Learning">Machine Learning</div>
+            </a>
           </li>
-      </ul>
+        </ul>
       </aside>
 
       <!-- Contenu principal -->
       <div class="layout-page">
         <div class="content-wrapper">
+          <div class="container py-4">
+            <h2 class="mb-4">Prédiction du cours de l'action Apple</h2>
+            <p>Grâce à l'intelligence artificielle basée sur les réseaux LSTM (Long Short-Term Memory), nous vous proposons une analyse avancée pour prédire les tendances du cours de l'action Apple. Notre modèle utilise les données passées pour fournir une estimation des prix pour les 5 prochains jours.</p>
+            
+            <div class="text-center my-4">
+              <button id="predict-button" class="btn btn-primary d-flex align-items-center justify-content-center">
+                <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_wlklw44p.json" background="transparent" speed="1" style="width: 40px; height: 40px;" loop autoplay></lottie-player>
+                <span class="ms-2">Lancer la prédiction</span>
+              </button>
+            </div>
 
-          <!-- Description de la prédiction -->
-          <div class="prediction-description">
-            <h2>Prédiction du cours de l'action Apple</h2>
-            <p>Cette fonctionnalité utilise une intelligence artificielle basée sur les réseaux neuronaux LSTM (Long Short-Term Memory) pour prédire le cours de l'action Apple. Le modèle analyse les tendances passées et fournit une prédiction des 5 jours à venir.</p>
+            <div id="prediction-results" style="display: none;">
+              <h4>Prédictions pour les 5 prochains jours :</h4>
+              <ul id="prediction-list"></ul>
+            </div>
           </div>
-
-          <!-- Bouton de prédiction avec animation Lottie -->
-          <div class="prediction-button">
-            <button id="predict-button" class="btn btn-primary">
-              <lottie-player src="https://assets10.lottiefiles.com/packages/lf20_wlklw44p.json"  background="transparent"  speed="1"  style="width: 50px; height: 50px;" loop autoplay></lottie-player>
-              Prédire les 5 prochains jours
-            </button>
-          </div>
-
-          <!-- Affichage des prédictions -->
-          <div id="prediction-results" style="display: none;">
-            <h3>Prédictions pour les 5 prochains jours :</h3>
-            <ul id="prediction-list"></ul>
-          </div>
-
         </div>
       </div>
     </div>
@@ -112,23 +104,19 @@
   <!-- Scripts -->
   <script>
     document.getElementById("predict-button").addEventListener("click", function() {
-      // Appel à l'API Flask pour récupérer les prédictions
       fetch('/prediction')
         .then(response => response.json())
         .then(data => {
           let predictions = data.predictions;
-          
-          // Affichage des prédictions
           let predictionList = document.getElementById("prediction-list");
-          predictionList.innerHTML = ''; // Clear previous predictions
-          
+          predictionList.innerHTML = '';
+
           predictions.forEach(prediction => {
             let listItem = document.createElement("li");
             listItem.textContent = `${prediction.date}: Open - ${prediction.open}, High - ${prediction.high}, Low - ${prediction.low}, Predicted Close - ${prediction.predicted_close}`;
             predictionList.appendChild(listItem);
           });
-          
-          // Afficher la section des résultats
+
           document.getElementById("prediction-results").style.display = "block";
         })
         .catch(error => {
