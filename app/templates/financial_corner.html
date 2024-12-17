@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+  <title>Apple Tracker - Tableau de bord analytique</title>
+  <meta name="description" content="Tableau de bord d'analyse pour le suivi des performances Apple.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='assets/img/favicon/favicon.ico') }}">
+
+  <!-- Polices -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Icônes -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/fonts/boxicons.css') }}">
+
+  <!-- Styles CSS principaux -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/core.css') }}" class="template-customizer-core-css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/css/theme-default.css') }}" class="template-customizer-theme-css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/css/demo.css') }}">
+
+  <!-- CSS des bibliothèques tierces -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apex-charts.css') }}">
+
+  <!-- Scripts auxiliaires -->
+  <script src="{{ url_for('static', filename='assets/vendor/js/helpers.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/config.js') }}"></script>
+</head>
+
+<body>
+  <!-- Conteneur principal -->
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+      <!-- Barre latérale -->
+      <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+        <div class="app-brand demo">
+          <a href="{{ url_for('main.home') }}" class="app-brand-link">
+            <span class="app-brand-logo demo">
+              <!-- Logo en image -->
+              <img src="{{ url_for('static', filename='assets/img/icons/icons-apple.png') }}" alt="Apple Tracker Logo" width="40" height="40" />
+          </span>
+            <span class="app-brand-text demo menu-text fw-bolder">Apple Tracker</span>
+          </a>
+        </div>
+        <ul class="menu-inner py-1">
+          <li class="menu-item">
+            <a href="{{ url_for('main.home') }}" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-home-circle"></i>
+              <div>Tableau de bord</div>
+            </a>
+          </li>
+          <li class="menu-item ">
+            <a href="{{ url_for('main.prediction') }}" class="menu-link">
+              <i class="menu-icon tf-icons bx bx-brain"></i>
+              <div>Machine Learning</div>
+            </a>
+          </li>
+          <li class="menu-item active">
+            <a href="{{ url_for('main.investisseur') }}" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-money"></i>
+                <div data-i18n="Invest">Coin Investisseur</div>
+            </a>
+        </li>
+        </ul>
+      </aside>
+
+      <!-- Contenu principal -->
+      <div class="layout-page">
+        <!-- Barre de navigation -->
+        <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+              <i class="bx bx-menu bx-sm"></i>
+            </a>
+          </div>
+
+          <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+            <!-- Barre de recherche -->
+            <div class="navbar-nav align-items-center">
+                <div class="nav-item d-flex align-items-center">
+                  <i class="bx bx-search fs-4 lh-0"></i>
+                  <input
+                    type="text"
+                    id="searchBar"
+                    class="form-control border-0 shadow-none"
+                    placeholder="Recherche..."
+                    aria-label="Recherche..."
+                  />
+                </div>
+              </div>              
+            <!-- Profil utilisateur -->
+            <ul class="navbar-nav flex-row align-items-center ms-auto">
+              <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                  <div class="avatar avatar-online">
+                    <img src="{{ url_for('static', filename='assets/img/avatars/avatar.png') }}" alt class="w-px-40 h-auto rounded-circle" />
+                  </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end">
+                  <li>
+                    <a class="dropdown-item" href="#">
+                      <div class="d-flex">
+                        <div class="flex-shrink-0 me-3">
+                          <div class="avatar avatar-online">
+                            <img src="{{ url_for('static', filename='assets/img/avatars/avatar.png') }}" alt class="w-px-40 h-auto rounded-circle" />
+                          </div>
+                        </div>
+                        <div class="flex-grow-1">
+                          <span class="fw-semibold d-block">{{ session.get('user', 'Utilisateur') }}</span>
+                        </div>
+                      </div>
+                    </a>
+                  </li>
+                  <li>
+                    <div class="dropdown-divider"></div>
+                  </li>
+                 
+                  <li>
+                  </li>
+                  <li>
+                    <a class="dropdown-item" href="{{ url_for('main.logout') }}">
+                      <i class="bx bx-power-off me-2"></i>
+                      <span class="align-middle">Se déconnecter</span>
+                    </a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+            </div>
+          </nav>
+        <!-- Contenu -->
+        <div class="content-wrapper">
+          <div class="container-xxl flex-grow-1 container-p-y">
+            <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Apple Tracker /</span> Coin Investisseur</h4>
+            <!-- Collapse -->
+          </div>
+        </div>
+        <!-- Contenu -->
+        <div class="content-wrapper container-xxl">
+            <h4 class="fw-bold py-3 mb-4">Coin Investisseur</h4>
+            <div class="row">
+              {% if data %}
+                <!-- Dernières actualités -->
+                <div class="col-lg-6">
+                  <h5>Dernières actualités d'Apple</h5>
+                  <ul class="list-group mt-3">
+                    {% for company in data if company.symbol == "AAPL" and company.news %}
+                      {% for article in company.news %}
+                        <li class="list-group-item">
+                          {% if article.thumbnail %}
+                            <img src="{{ article.thumbnail.resolutions[1].url }}" class="rounded me-3" style="width: 60px; height: 60px;">
+                          {% endif %}
+                          <a href="{{ article.link }}" target="_blank">{{ article.title }}</a>
+                          <small class="d-block">{{ article.providerPublishTime | datetimeformat }}</small>
+                          <small>{{ article.publisher }}</small>
+                        </li>
+                      {% endfor %}
+                    {% endfor %}
+                  </ul>
+                </div>
+                <!-- Tableau des prix -->
+                <div class="col-lg-6">
+                  <h5 class="text-center">Prix des autres actions</h5>
+                  <table class="table table-bordered">
+                    <thead>
+                      <tr>
+                        <th>Entreprise</th>
+                        <th>Prix actuel</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for company in data if company.symbol != "AAPL" %}
+                        <tr>
+                          <td>{{ company.symbol }}</td>
+                          <td>${{ company.price }}</td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              {% else %}
+                <p>Aucune donnée disponible.</p>
+              {% endif %}
+            </div>
+          </div>
+          
+          
+          
+          
+      </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="layout-overlay layout-menu-toggle"></div>
+  </div>
+
+  <!-- Scripts JS -->
+  <script src="{{ url_for('static', filename='assets/vendor/libs/jquery/jquery.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/libs/popper/popper.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/js/bootstrap.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/js/menu.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/vendor/libs/apex-charts/apexcharts.js') }}"></script>
+  <script src="{{ url_for('static', filename='assets/js/main.js') }}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const searchBar = document.getElementById('searchBar');
+      const listGroup = document.querySelector('.list-group');
+  
+      // Original data (e.g., fetched or rendered server-side)
+      const articles = [
+        {% for company in data %}
+          {% if company.symbol == "AAPL" %}
+            {% for article in company.news %}
+              {
+                title: "{{ article.title | escape }}",
+                description: "{{ article.description | escape | default('') }}",
+                publisher: "{{ article.publisher | escape }}",
+                date: "{{ article.providerPublishTime | datetimeformat }}",
+                thumbnail: "{{ article.thumbnail.resolutions[1].url | escape }}",
+                link: "{{ article.link | escape }}"
+              },
+            {% endfor %}
+          {% endif %}
+        {% endfor %}
+      ];
+  
+      // Event listener for search bar input
+      searchBar.addEventListener('input', (e) => {
+        const searchQuery = e.target.value.toLowerCase().trim();
+  
+        // Filter articles based on search query
+        const filteredArticles = articles.filter(article =>
+          article.title.toLowerCase().includes(searchQuery) ||
+          article.description.toLowerCase().includes(searchQuery) ||
+          article.publisher.toLowerCase().includes(searchQuery)
+        );
+  
+        // Clear and update the list group with filtered results
+        listGroup.innerHTML = '';
+        if (filteredArticles.length > 0) {
+          filteredArticles.forEach(article => {
+            const listItem = `
+              <a href="${article.link}" target="_blank" class="list-group-item list-group-item-action flex-column align-items-start">
+                <div class="d-flex justify-content-between w-100">
+                  <img src="${article.thumbnail}" alt="Thumbnail" class="mr-3" style="width: 60px; height: 60px; border-radius: 8px;">
+                  <h6>${article.title}</h6>
+                  <small>${article.date}</small>
+                </div>
+                <p class="mb-1">${article.description}</p>
+                <small>${article.publisher}</small>
+              </a>
+            `;
+            listGroup.innerHTML += listItem;
+          });
+        } else {
+          listGroup.innerHTML = '<p class="text-center text-muted">Aucun résultat trouvé.</p>';
+        }
+      });
+    });
+  </script>
+  
+</body>
+</html>
