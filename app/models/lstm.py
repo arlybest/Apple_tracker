@@ -4,6 +4,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from app.utils.scraper2 import get_stock_data
 from datetime import datetime, timedelta
+import os
 
 def get_next_prediction_dates(num_days=5):
     """
@@ -17,11 +18,14 @@ def get_next_prediction_dates(num_days=5):
     """
     return [(datetime.now() + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(1, num_days + 1)]
 
-def predict_lstm():
+def predict_lstm(model_path="lstm_model.h5"):
     """
     Prédit les prix futurs d'une action (AAPL dans cet exemple) pour les 5 prochains jours
     en utilisant un modèle LSTM.
 
+    Paramètres:
+        model_path (str): Chemin pour sauvegarder ou charger le modèle LSTM.
+    
     Retourne:
         dict: Un dictionnaire contenant les dates de prédiction et les prix prédits.
     """
@@ -45,18 +49,27 @@ def predict_lstm():
     y_train = np.array(y_train)
     X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1], 1))  # Reshape pour LSTM
 
-    # Étape 4 : Construction du modèle LSTM
-    model = tf.keras.Sequential([
-        tf.keras.layers.LSTM(50, return_sequences=True, input_shape=(X_train.shape[1], 1)),
-        tf.keras.layers.LSTM(50),
-        tf.keras.layers.Dense(1)
-    ])
-    model.compile(optimizer="adam", loss="mean_squared_error")
+    # Étape 4 : Vérification si un modèle pré-entraîné existe
+    if os.path.exists(model_path):
+        print(f"Loading model from {model_path}")
+        model = tf.keras.models.load_model(model_path)
+    else:
+        # Construction et entraînement du modèle si aucun modèle sauvegardé
+        model = tf.keras.Sequential([
+            tf.keras.layers.LSTM(50, return_sequences=True, input_shape=(X_train.shape[1], 1)),
+            tf.keras.layers.LSTM(50),
+            tf.keras.layers.Dense(1)
+        ])
+        model.compile(optimizer="adam", loss="mean_squared_error")
 
-    # Étape 5 : Entraînement du modèle
-    model.fit(X_train, y_train, epochs=50, batch_size=32, verbose=1)
+        print("Training the model...")
+        model.fit(X_train, y_train, epochs=50, batch_size=32, verbose=1)
+        
+        # Sauvegarde du modèle après l'entraînement
+        print(f"Saving model to {model_path}")
+        model.save(model_path)
 
-    # Étape 6 : Préparation des données pour la prédiction
+    # Étape 5 : Préparation des données pour la prédiction
     last_5_days = data[-5:].reshape(1, 5, 1)  # Les 5 derniers jours pour prédire le futur
     predictions = []
 
@@ -67,13 +80,13 @@ def predict_lstm():
         # Met à jour les 5 derniers jours avec la nouvelle prédiction
         last_5_days = np.append(last_5_days[:, 1:, :], [[[prediction[0, 0]]]], axis=1)
 
-    # Étape 7 : Transformation inverse pour obtenir les prix réels
+    # Étape 6 : Transformation inverse pour obtenir les prix réels
     predicted_prices = scaler.inverse_transform(np.array(predictions).reshape(-1, 1)).flatten()
 
-    # Étape 8 : Génération des dates correspondantes
+    # Étape 7 : Génération des dates correspondantes
     prediction_dates = get_next_prediction_dates()
 
-    # Étape 9 : Retour des résultats sous forme de dictionnaire
+    # Étape 8 : Retour des résultats sous forme de dictionnaire
     return {
         "predictions": predicted_prices.tolist(),
         "dates": prediction_dates
