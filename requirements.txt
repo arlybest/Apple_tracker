@@ -68,7 +68,7 @@ pipdeptree==2.24.0
 platformdirs==4.3.6
 pluggy==1.5.0
 proto-plus==1.25.0
-protobuf==5.29.1
+protobuf>=3.20.3,<5.0.0dev
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
 pycparser==2.22
