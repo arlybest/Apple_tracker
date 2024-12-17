@@ -14,6 +14,8 @@ logging.basicConfig(
 # Création de l'application Flask
 app = create_app()
 
+app.config['SECRET_KEY'] = 'mamapapa87.'
+
 # Définir le filtre pour formater les timestamps
 def datetimeformat(value):
     """

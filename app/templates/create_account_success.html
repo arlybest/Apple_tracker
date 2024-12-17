@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compte créé avec succès</title>
+
+    <!-- Include Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <style>
+        body {
+            font-family: 'Public Sans', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 400px;
+            text-align: center;
+        }
+
+        .card h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        .alert {
+            margin-top: 20px;
+        }
+
+        .redirect-message {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .countdown {
+            font-size: 24px;
+            color: #dc3545;
+            font-weight: bold;
+        }
+    </style>
+
+    <script>
+        // Countdown Timer (10 seconds)
+        var countdown = 5;
+        function updateCountdown() {
+            document.getElementById('countdown').innerText = countdown + 's';
+            countdown--;
+            if (countdown < 0) {
+                window.location.href = "{{ url_for('main.login') }}"; // Redirect after countdown
+            }
+        }
+        setInterval(updateCountdown, 1000); // Update every second
+    </script>
+</head>
+<body>
+
+    <div class="card">
+        <h1>Compte créé avec succès</h1>
+        <p>{{ success }}</p>
+        <div class="alert alert-success" role="alert">
+            Votre compte a été créé avec succès. Vous serez redirigé vers la page de connexion dans <span id="countdown" class="countdown">10s</span>.
+        </div>
+        <p class="redirect-message">Si vous n'êtes pas redirigé, cliquez <a href="{{ url_for('main.login') }}">ici</a>.</p>
+    </div>
+
+</body>
+</html>
