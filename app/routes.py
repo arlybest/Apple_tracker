@@ -16,6 +16,75 @@ import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 from firebase_admin import auth
+import yfinance as yf
+
+import yfinance as yf
+from datetime import datetime
+import logging
+
+import yfinance as yf
+from datetime import datetime
+import logging
+
+import pandas as pd
+
+def get_historical_data(stock_symbol="AAPL", start_date="2020-01-01", end_date=None):
+    """
+    Fetch historical stock data (dates and actual prices) for a given stock symbol.
+    Args:
+        stock_symbol (str): The stock ticker symbol (e.g., 'AAPL').
+        start_date (str): The start date for the data in the format 'YYYY-MM-DD'.
+        end_date (str): The end date for the data in the format 'YYYY-MM-DD'. Defaults to today if not provided.
+
+    Returns:
+        dict: A dictionary containing 'dates' and 'actualPrices'.
+    """
+    try:
+        # Default to today's date if end_date is not provided
+        if end_date is None:
+            end_date = datetime.now().strftime('%Y-%m-%d')
+        
+        # Fetch historical data using Yahoo Finance
+        data = yf.download(stock_symbol, start=start_date, end=end_date, progress=False)
+
+        # Log the raw data for debugging
+        logging.debug(f"Données récupérées pour {stock_symbol} :\n{data.head()}")
+
+        # Vérifiez si les données sont vides
+        if data.empty:
+            logging.error(f"Aucune donnée disponible pour {stock_symbol} entre {start_date} et {end_date}.")
+            return {
+                "dates": [],
+                "actualPrices": []
+            }
+
+        # Aplatir les colonnes si elles sont multi-indexées
+        if isinstance(data.columns, pd.MultiIndex):
+            data.columns = [' '.join(col).strip() for col in data.columns]
+            logging.debug(f"Colonnes après aplatissement : {data.columns}")
+
+        # Vérifiez si la colonne 'Close' existe
+        if 'Close' not in data.columns:
+            logging.error(f"La colonne 'Close' est introuvable dans les données pour {stock_symbol}.")
+            return {
+                "dates": [],
+                "actualPrices": []
+            }
+
+        # Extract dates and closing prices
+        dates = list(data.index.strftime('%Y-%m-%d'))  # Format index and convert to a list
+        actual_prices = data['Close'].tolist()  # Convert 'Close' column to a list
+        
+        return {
+            "dates": dates,
+            "actualPrices": actual_prices
+        }
+    except Exception as e:
+        logging.error(f"Erreur lors de la récupération des données historiques : {e}")
+        return {
+            "dates": [],
+            "actualPrices": []
+        }
 
 # ========================= CONFIGURATION =========================
 
@@ -362,23 +431,45 @@ def stock_data():
 
 @main.route('/prediction', methods=['GET', 'POST'])
 def prediction():
-    # Cette route gère à la fois les requêtes GET et POST pour la fonctionnalité de prédiction.
-
     if request.method == "GET":
-        # Si la méthode de la requête est GET, on rend la page HTML de prédiction.
         return render_template("prediction.html")
-
     elif request.method == "POST":
-        # Si la méthode de la requête est POST, on exécute la logique de prédiction.
+        try:
+            # Récupérer les données historiques (5 jours précédents)
+            historical_data = get_stock_data(stock_symbol="AAPL", period="5d", interval="1d")
+            actual_prices = historical_data["recent_prices"]
 
-        # Appel de la fonction `predict_lstm` pour générer les prédictions (fonction définie ailleurs).
-        prediction = predict_lstm()
-        response_data = {
-            "dates": prediction["dates"],
-            "predictions": prediction["predictions"],
-        }
-        # Retourne les résultats sous forme de réponse JSON, utile pour les appels API ou AJAX.
-        return jsonify(response_data)
+            # Ajouter le prix d'aujourd'hui s'il n'est pas déjà dans `actualPrices`
+            today_data = get_stock_data(stock_symbol="AAPL", period="1d", interval="1d")
+            today_price = today_data["recent_prices"][-1]  # Dernier prix du jour actuel
+
+            # Vérifiez si le dernier prix historique est différent du prix d'aujourd'hui
+            if actual_prices[-1] != today_price:
+                actual_prices.append(today_price)  # Ajoute uniquement si nécessaire
+
+            # Obtenir les prédictions
+            prediction = predict_lstm()
+            predicted_prices = prediction["predictions"]
+            prediction_dates = prediction["dates"]
+
+            # Combiner les dates historiques, la date d'aujourd'hui, et les dates de prédictions
+            historical_dates = [(datetime.now() - timedelta(days=i)).strftime("%Y-%m-%d") for i in range(5, 0, -1)]
+            today_date = datetime.now().strftime("%Y-%m-%d")
+
+            # Évitez les doublons dans les dates
+            combined_dates = historical_dates + [today_date] + prediction_dates
+
+            response_data = {
+                "dates": combined_dates,
+                "actualPrices": actual_prices,
+                "predictions": predicted_prices,
+            }
+
+            return jsonify(response_data), 200
+
+        except Exception as e:
+            logging.error(f"Erreur lors de la génération des prédictions : {e}")
+            return jsonify({"error": "Une erreur est survenue."}), 500
 
 
 @main.route('/investisseur', methods=['GET'])

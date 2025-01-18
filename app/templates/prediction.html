@@ -206,146 +206,168 @@
   
     // Event listener for button click
     predictBtn.addEventListener('click', function () {
-      // Change button text to spinner
       predictBtn.innerHTML = spinnerHTML;
-      predictBtn.disabled = true; // Disable button to prevent multiple clicks
+      predictBtn.disabled = true;
   
       // Fetch prediction data from the Flask /predict route (POST request)
       fetch('/prediction', {
-        method: 'POST', // Send POST request for predictions
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         }
       })
-      .then(response => response.json()) // Parse JSON response
-      .then(data => {
-        // Handle the prediction data (populate the chart)
-        createPredictionChart(data);
+        .then(response => response.json())
+        .then(data => {
+          // Handle the prediction data
+          createPredictionChart(data);
   
-        // Reset the button after the chart is created
-        predictBtn.innerHTML = 'Prédire';
-        predictBtn.disabled = false;
-      })
-      .catch(error => {
-        console.error('Erreur lors de la prédiction :', error);
-        // Handle error
-        predictBtn.innerHTML = 'Prédire';
-        predictBtn.disabled = false;
-      });
+          // Reset the button
+          predictBtn.innerHTML = 'Prédire';
+          predictBtn.disabled = false;
+        })
+        .catch(error => {
+          console.error('Erreur lors de la prédiction :', error);
+          predictBtn.innerHTML = 'Prédire';
+          predictBtn.disabled = false;
+        });
     });
   
     // Function to create the prediction chart
-    function createPredictionChart(data) {
-      const ctx = document.getElementById('prediction-chart').getContext('2d');
-      const labels = data.dates;  // Extract dates
-      const prices = data.predictions;  // Extract predicted prices
-  
-      if (window.predictionChart) window.predictionChart.destroy(); // Destroy any existing chart
-  
-      window.predictionChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Prix prédit (en $)',
-            data: prices,
-            borderColor: '#696CFF', // Using the #696CFF color for the line
-            backgroundColor: 'rgba(105, 108, 255, 0.2)', // Light purple fill under the line
-            pointBackgroundColor: '#696CFF', // Point color matches line
-            pointBorderColor: '#fff', // White border for points
-            pointRadius: 6, // Larger points for better visibility
-            borderWidth: 3,
-            tension: 0.3, // Smooth the line
-            fill: true, // Enable area fill under the line
-            pointHoverRadius: 8, // Larger point when hovered
-            pointHoverBackgroundColor: '#fff', // White hover point background
-            pointHoverBorderColor: '#696CFF', // Hover border color
-          }]
+function createPredictionChart(data) {
+  const ctx = document.getElementById('prediction-chart').getContext('2d');
+
+  // Labels (toutes les dates combinées)
+  const labels = data.dates;
+
+  // Données historiques
+  const actualPrices = data.actualPrices;
+
+  // Données prédictions : Ajoute la dernière valeur des historiques comme premier point des prédictions
+  const predictedPrices = [actualPrices[actualPrices.length - 1], ...data.predictions];
+
+  // Combine toutes les valeurs pour ajuster dynamiquement l'échelle
+  const allPrices = [...actualPrices, ...data.predictions];
+
+  // Calculer les limites min et max avec une marge supplémentaire (par exemple, 2%)
+  const minPrice = Math.min(...allPrices) * 0.98;
+  const maxPrice = Math.max(...allPrices) * 1.02;
+
+  // Si un graphique existe déjà, le détruire avant d'en créer un nouveau
+  if (window.predictionChart) window.predictionChart.destroy();
+
+  // Création du graphique
+  window.predictionChart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        // Courbe des données historiques
+        {
+          label: 'Prix actuel (5 jours précédents)',
+          data: actualPrices,
+          borderColor: '#28a745', // Vert
+          backgroundColor: 'rgba(40, 167, 69, 0.2)',
+          pointBackgroundColor: '#28a745',
+          pointBorderColor: '#fff',
+          pointRadius: 5,
+          borderWidth: 3,
+          tension: 0.3
         },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false, // Let chart resize based on container
-          animation: {
-            duration: 1000, // Smooth animation when the chart is drawn
-            easing: 'easeOutBounce', // Bounce effect for the animation
+        // Courbe des prédictions
+        {
+          label: 'Prix prédit (5 jours suivants)',
+          data: Array(actualPrices.length - 1).fill(null).concat(predictedPrices), // Connecte avec la dernière valeur
+          borderColor: '#696CFF', // Violet
+          borderDash: [5, 5], // Pointillés pour différencier
+          backgroundColor: 'rgba(105, 108, 255, 0.2)',
+          pointBackgroundColor: '#696CFF',
+          pointBorderColor: '#fff',
+          pointRadius: 5,
+          borderWidth: 3,
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        x: {
+          grid: {
+            color: 'rgba(200, 200, 200, 0.4)',
+            lineWidth: 0.5
           },
-          scales: {
-            x: {
-              grid: {
-                color: 'rgba(200, 200, 200, 0.4)', // Light gridlines
-                lineWidth: 0.5, // Thinner gridlines for cleaner look
-              },
-              ticks: {
-                font: {
-                  size: 12, // Smaller x-axis labels
-                  family: 'Arial, sans-serif',
-                  weight: 'bold',
-                  color: '#333',
-                },
-              },
-            },
-            y: {
-              grid: {
-                color: 'rgba(200, 200, 200, 0.4)', // Light gridlines for y-axis
-                lineWidth: 0.5,
-              },
-              ticks: {
-                font: {
-                  size: 12, // Smaller y-axis labels
-                  family: 'Arial, sans-serif',
-                  weight: 'bold',
-                  color: '#333',
-                },
-                beginAtZero: true, // Start y-axis at zero
-              },
-            },
+          ticks: {
+            font: {
+              size: 12,
+              family: 'Arial, sans-serif',
+              weight: 'bold',
+              color: '#333'
+            }
+          }
+        },
+        y: {
+          min: minPrice, // Ajuste dynamiquement le minimum
+          max: maxPrice, // Ajuste dynamiquement le maximum
+          grid: {
+            color: 'rgba(200, 200, 200, 0.4)',
+            lineWidth: 0.5
           },
-          plugins: {
-            legend: {
-              position: 'top',
-              labels: {
-                font: {
-                  family: 'Arial, sans-serif',
-                  size: 14,
-                  weight: 'bold',
-                  color: '#333',
-                }
-              }
-            },
-            title: {
-              display: true,
-              text: 'Prédictions pour les 5 prochains jours',
-              font: {
-                family: 'Arial, sans-serif',
-                size: 16,
-                weight: 'bold',
-                color: '#333'
-              }
-            },
-            tooltip: {
-              callbacks: {
-                label: function (tooltipItem) {
-                  return `Prix prédit: $${tooltipItem.raw.toFixed(2)}`;
-                }
-              },
-              backgroundColor: 'rgba(0,0,0,0.7)', // Dark background for tooltips
-              titleColor: '#fff', // White title
-              bodyColor: '#fff', // White body text
-              cornerRadius: 4, // Rounded corners for the tooltip
-              displayColors: false, // Don't show color box in the tooltip
+          ticks: {
+            font: {
+              size: 12,
+              family: 'Arial, sans-serif',
+              weight: 'bold',
+              color: '#333'
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'top',
+          labels: {
+            font: {
+              family: 'Arial, sans-serif',
+              size: 14,
+              weight: 'bold',
+              color: '#333'
+            }
+          }
+        },
+        title: {
+          display: true,
+          text: 'Cours actuel et prédictions pour les 5 prochains jours',
+          font: {
+            family: 'Arial, sans-serif',
+            size: 16,
+            weight: 'bold',
+            color: '#333'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (tooltipItem) {
+              return `Prix : $${tooltipItem.raw.toFixed(2)}`;
             }
           },
-          interaction: {
-            mode: 'nearest', // Hover effect at nearest point
-            intersect: false, // Allow hover even if cursor is not directly on a point
-          },
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          titleColor: '#fff',
+          bodyColor: '#fff',
+          cornerRadius: 4,
+          displayColors: false
         }
-      });
+      },
+      interaction: {
+        mode: 'nearest',
+        intersect: false
+      }
     }
+  });
+}
+
+  
   </script>
-  
-  
-  
   
   
 </body>
